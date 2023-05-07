@@ -6,7 +6,7 @@
 
 
 <script>
-import LoginForm from '@/components/user/LoginForm'
+import LoginForm from '@/components/member/LoginForm'
 
 export default {
   components: {

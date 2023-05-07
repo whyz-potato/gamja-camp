@@ -6,7 +6,7 @@
 
 
 <script>
-import JoinForm from '@/components/user/JoinForm'
+import JoinForm from '@/components/member/JoinForm'
 
 export default {
   components: {
