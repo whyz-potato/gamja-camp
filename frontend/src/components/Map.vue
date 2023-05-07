@@ -2,16 +2,42 @@
   <div class="sheet">
     <div class="camps">
       <div class="search">
-        <input type="text" placeholder="지역 또는 캠핑장 검색">
-        <div>
-          <input type="text" class="search_date" placeholder="기간">
-          <input type="text" class="search_guest" placeholder="인원수">
-        </div>
-      </div>
+          <input type="text" placeholder="지역 또는 캠핑장">
 
+        <div>
+          <v-menu ref="menu" v-model="menu" offset-y :close-on-content-click="false">
+            <template v-slot:activator="{ on, attrs }">
+              <input class="search_date" v-model="dateRangeText"
+                v-on="on" v-bind="attrs" placeholder="기간"/>
+            </template>
+            <v-date-picker v-model="dates" no-title range
+              color="grey" :first-day-of-week="1" :min="today" :day-format="getDay">
+              <v-spacer></v-spacer>
+              <v-btn text @click="menu = false">취소</v-btn>
+              <v-btn text @click="$refs.menu.save(dates)">확인</v-btn>
+            </v-date-picker>
+          </v-menu>
+
+          <div class="search_guests">
+            <!--
+            <div class="arrow_icon">
+              <img :src="require(`@/assets/imgs/arrow_icon.png`)">
+            </div>
+            -->
+            <select name="guests" class="select_box">
+              <option disabled selected class="select_option">인원</option>
+              <option v-for="index in 10" :key="index"
+                class="select_option">{{ index }}</option>
+            </select>
+          </div>
+        </div>
+          
+      </div>
+      
       <div class="camps_count">검색결과 {{ this.count }} 건</div>
 
-      <div v-for="list in campList" :key="list.index" class="camp_list">
+      <div v-for="(list, index) in campList" :key="index" class="camp_list" 
+        @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutToList(index)">
         <div style="display:flex;">
           <div v-for="img in list.images" :key="img.index" class="camp_img">
             <img :src="require(`@/assets/test/${img}`)">
@@ -51,13 +77,35 @@ export default {
       swLng: null,
       count: null,
       campList: null,
-      markers: []
+      markers: [],
+      dates: null,
+      menu: false
+    }
+  },
+  computed: {
+    dateRangeText () {
+      if(this.dates) {
+        return this.dates.join(' ~ ')
+      } return ''
+    },
+    today () {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = ('0' + (today.getMonth() + 1)).slice(-2)
+      const day = ('0' + today.getDate()).slice(-2)
+
+      return year + '-' + month + '-' + day
+    },
+    getDay (date) {
+      const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토']
+      let i = new Date(date).getDay(date)
+      return daysOfWeek[i]
     }
   },
   mounted () {
     this.count = camp_list.count
     this.campList = camp_list.camps
-    console.log(this.campList)
+    //console.log(this.campList)
 
     this.map = new window.naver.maps.Map('map',{
       zoom: 15
@@ -100,6 +148,14 @@ export default {
     }
   },
   methods: {
+    mouseoverToList (i) {
+      const content = this.markers[i].getIcon().content.replace('marker', 'marker-mouseover')
+      this.markers[i].setIcon({ content: content })
+    },
+    mouseoutToList (i) {
+      const content = this.markers[i].getIcon().content.replace('marker-mouseover', 'marker')
+      this.markers[i].setIcon({ content: content })
+    }
   }
 }
 </script>
@@ -138,14 +194,65 @@ input {
   text-align: center;
   margin-bottom: 5px;
 }
+input[type=text] {
+  background-image: url('@/assets/imgs/search_icon.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+  background-position: 13px center;
+}
 .search>div {
   display: flex;
 }
 .search_date {
   width: 70%;
+  background-image: url('@/assets/imgs/date_icon.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+  background-position: 13px center;
+  margin-right: 5px;
 }
-.search_guest {
-  width: 30%;
+.search_guests {
+  width: 30%
+}
+.select_box {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #dddddd;
+  border-radius: 50px;
+  cursor: pointer;
+  align-items: center;
+  background-color: white;
+  outline-color: #dddddd;
+  text-align: center;
+  color: #5e5e5e;
+}
+.select_option {
+  position: absolute; 
+  top: 28px;
+  left: 0;
+  width: 100%;
+  background: white;
+  color: #5e5e5e;
+  list-style-type: none;
+  padding: 0;
+  overflow: hidden;
+  max-height: 0;
+  transition: .3s ease-in;
+}
+.arrow_icon {
+  position: absolute;
+  height: 40px;
+  align-items: center;
+  display: flex;
+
+}
+.arrow_icon>img {
+  width: 15px;
+  opacity: 0.7;
+  transition: .3s;
+}
+.select_box:focus + .arrow_icon>img {
+  transform: rotate(180deg);
 }
 .camps_count {
   width: 95%;
@@ -202,15 +309,33 @@ input {
 .camp_price {
   color: #5e5e5e;
 }
-.price {
+.camp_price .price {
   font-size: 18px;
   font-weight: bold;
 }
+</style>
+
+<style>
 .marker {
-  color: red;
+  color: #5e5e5e;
   white-space: nowrap;
   position: relative;
   background-color: white;
+  line-height: 30px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 15px;
+  transition: 0.5s;
+  padding: 0 8px;
+  box-shadow: #dddddd 0px 0px 0px 1px,
+    #dddddd 0px 1px 2px;
+  overflow-y: auto;
+  transform: translate(-40%, -60%);
+}
+.marker-mouseover {
+  white-space: nowrap;
+  position: relative;
+  background-color: #FFBB98;
   line-height: 30px;
   text-align: center;
   font-weight: bold;
