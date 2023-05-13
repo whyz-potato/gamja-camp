@@ -40,7 +40,15 @@
               </v-card>
               <v-divider vertical></v-divider>
               <v-card class="ma-5" width="300" flat>
-                테스트테스트테스트
+                <v-item-group>
+                  <v-item v-for="list in guList" :key="list.index"
+                    v-slot="{ active, toggle }">
+                    <v-btn active-class="primary" :input-value="active"
+                      @click="toggle" rounded outlined color="grey"
+                      class="ma-1">{{ list.SIG_KOR_NM }}</v-btn>
+                  </v-item>
+                </v-item-group>
+                
               </v-card>
             </div>
             
@@ -101,15 +109,12 @@ export default {
   },
   methods: {
     selectSi (siCode) {
-      if (siCode) {
-        console.log(siCode)
-        this.guList = []
-        for (let i = 0; this.allGuList.length; i++) {
-          if (this.allGuList[i].SIG_CD.toString().slice(0,2) == siCode) {
-            this.guList.push(this.allGuList[i])         
-          }
+      this.guList = []
+
+      for (let i = 0; i < this.allGuList.length; i++) {
+        if (this.allGuList[i].SIG_CD.toString().slice(0,2) == siCode) {
+          this.guList.push(this.allGuList[i])         
         }
-        console.log(this.guList)
       }
     }
   }

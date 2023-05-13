@@ -143,7 +143,7 @@ export default {
       this.swLat = southWest.lat()
       this.swLng = southWest.lng()
 
-      console.log(this.neLat,this.neLng)
+      //console.log(this.neLat,this.neLng)
     })
 
   
