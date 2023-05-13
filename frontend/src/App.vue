@@ -31,7 +31,7 @@ export default {
   width : 100vw;
   height : 100vh;
   /* background-color: #fef1e3; */
-  background-color: #f7f7f7;
+  /* background-color: #eeeeee; */
   /* position: relative; */
   letter-spacing: 1px;
 }
@@ -44,7 +44,7 @@ export default {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background-color: transparent;
+  background-color: white;
 }
 ::-webkit-scrollbar-thumb:hover  {
   border-radius: 3px;
@@ -52,6 +52,6 @@ export default {
 }
 ::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background-color: transparent;
+  /* background-color: transparent; */
 }
 </style>

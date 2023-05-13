@@ -39,7 +39,7 @@
 
 
 <script>
-//import api from '@/api/index'
+import api from '@/api/index'
 
 export default {
   data (){
@@ -51,10 +51,10 @@ export default {
     login (social) {
       console.log(this.tabValue)
       console.log(social)
-      // api.get(`/`).then(() => {
-
-      // })
-      this.$router.push({ name: 'Join' })
+      api.get(`/login`).then(res => {
+        console.log(res.data)
+      })
+      // this.$router.push({ name: 'Join' })
     }
   }
 }

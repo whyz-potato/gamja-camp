@@ -2,72 +2,81 @@
   <div class="sheet">
     <div class="camps">
       <div class="search">
-          <input type="text" placeholder="지역 또는 캠핑장">
 
-        <div>
+        <div class="d-flex">
+          <v-combobox class="mr-2" v-model="si" dense outlined rounded placeholder="시/도"
+            :items="siList" item-text="CTP_KOR_NM" return-object></v-combobox>
+          <v-combobox class="mr-2" v-model="gu" dense outlined rounded placeholder="구/군"></v-combobox>
+          <v-text-field v-model="inputSearch" dense outlined rounded placeholder="캠핑장"></v-text-field>
+        </div>
+          
+        <div class="d-flex mt-n4">
           <v-menu ref="menu" v-model="menu" offset-y :close-on-content-click="false">
             <template v-slot:activator="{ on, attrs }">
-              <input class="search_date" v-model="dateRangeText"
-                v-on="on" v-bind="attrs" placeholder="기간"/>
+              <v-text-field class="mr-2" v-model="dateRangeText" v-on="on" v-bind="attrs" 
+                dense outlined rounded placeholder="기간">
+              </v-text-field>
             </template>
             <v-date-picker v-model="dates" no-title range
-              color="grey" :first-day-of-week="1" :min="today" :day-format="getDay">
+              color="secondary" :first-day-of-week="1" :min="today" :day-format="getDay">
               <v-spacer></v-spacer>
-              <v-btn text @click="menu = false">취소</v-btn>
-              <v-btn text @click="$refs.menu.save(dates)">확인</v-btn>
+              <v-btn class="mt-n10" text rounded
+                @click="menu = false">취소</v-btn>
+              <v-btn class="mt-n10" outlined rounded
+                @click="$refs.menu.save(dates)">확인</v-btn>
             </v-date-picker>
           </v-menu>
 
-          <div class="search_guests">
-            <!--
-            <div class="arrow_icon">
-              <img :src="require(`@/assets/imgs/arrow_icon.png`)">
-            </div>
-            -->
-            <select name="guests" class="select_box">
-              <option disabled selected class="select_option">인원</option>
-              <option v-for="index in 10" :key="index"
-                class="select_option">{{ index }}</option>
-            </select>
-          </div>
-        </div>
-          
+          <v-combobox dense outlined rounded placeholder="인원수"></v-combobox>
+        </div> 
       </div>
       
       <div class="camps_count">검색결과 {{ this.count }} 건</div>
 
-      <div v-for="(list, index) in campList" :key="index" class="camp_list" 
-        @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutToList(index)">
-        <div style="display:flex;">
-          <div v-for="img in list.images" :key="img.index" class="camp_img">
-            <img :src="require(`@/assets/test/${img}`)">
+      <div>
+        <div v-for="(list, index) in campList" :key="index" class="camp_list" 
+          @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutToList(index)">
+          <div style="display:flex;">
+            <div v-for="img in list.images" :key="img.index" class="camp_img">
+              <img :src="require(`@/assets/test/${img}`)">
+            </div>
+          </div>
+
+          <div class="camp_info">
+            <div class="camp_name">{{ list.name }}</div>
+            <div class="camp_rate">
+              <img :src="require('@/assets/imgs/star_icon.png')">
+              <div>{{ list.rate }}</div>
+            </div>       
+          </div>
+
+          <div class="camp_price">
+            <span>1박 / </span>
+            <span class="price">{{ list.OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</span>
+            <span> 원~</span>
           </div>
         </div>
-
-        <div class="camp_info">
-          <div class="camp_name">{{ list.name }}</div>
-          <div class="camp_rate">
-            <img :src="require('@/assets/imgs/star_icon.png')">
-            <div>{{ list.rate }}</div>
-          </div>       
-        </div>
-
-        <div class="camp_price">
-          <span>1박 / </span>
-          <span class="price">{{ list.OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</span>
-          <span> 원~</span>
-        </div>
       </div>
+      
     </div>
     
-    <div id="map" class="map"></div>
+    
+    <div id="map" class="map">
+      <Search style="position: fixed; z-index: 1;"></Search>
+    </div>
   </div>
 </template>
 
 <script>
 import camp_list from '@/assets/test/camp_list'
+import si_list from '@/assets/data/si_list'
+import gu_list from '@/assets/data/gu_list'
+import Search from '@/components/home/Search'
 
 export default {
+  components: {
+    Search
+  },
   data () {
     return {
       map: null,
@@ -79,7 +88,12 @@ export default {
       campList: null,
       markers: [],
       dates: null,
-      menu: false
+      menu: false,
+      siList: null,
+      guList: null,
+      si: null,
+      gu: null,
+      inputSearch: null
     }
   },
   computed: {
@@ -105,7 +119,8 @@ export default {
   mounted () {
     this.count = camp_list.count
     this.campList = camp_list.camps
-    //console.log(this.campList)
+    this.siList = si_list
+    this.guList = gu_list
 
     this.map = new window.naver.maps.Map('map',{
       zoom: 15
@@ -128,7 +143,7 @@ export default {
       this.swLat = southWest.lat()
       this.swLng = southWest.lng()
 
-      // console.log(this.neLat,this.neLng)
+      console.log(this.neLat,this.neLng)
     })
 
   
@@ -164,95 +179,21 @@ export default {
 <style scoped>
 .sheet {
   display: flex;
-  height:100%; 
-  background-color: #f7f7f7;
+  height: 100%; 
+  background-color: white;
 }
 .camps {
-  width:25%; 
-  height:100%; 
+  width: 25%; 
+  height: 100%; 
 }
 .map {
-  width:75%; 
-  height:100%;
+  width: 75%; 
+  height: 100%;
 }
 .search {
   width: 95%;
   margin: auto;
   margin-top: 10px;
-}
-input {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #dddddd;
-  border-radius: 50px;
-  cursor: pointer;
-  align-items: center;
-  display: flex;
-  background-color: white;
-  outline-color: #dddddd;
-  padding-left: 10px;
-  text-align: center;
-  margin-bottom: 5px;
-}
-input[type=text] {
-  background-image: url('@/assets/imgs/search_icon.png');
-  background-repeat: no-repeat;
-  background-size: 18px;
-  background-position: 13px center;
-}
-.search>div {
-  display: flex;
-}
-.search_date {
-  width: 70%;
-  background-image: url('@/assets/imgs/date_icon.png');
-  background-repeat: no-repeat;
-  background-size: 18px;
-  background-position: 13px center;
-  margin-right: 5px;
-}
-.search_guests {
-  width: 30%
-}
-.select_box {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #dddddd;
-  border-radius: 50px;
-  cursor: pointer;
-  align-items: center;
-  background-color: white;
-  outline-color: #dddddd;
-  text-align: center;
-  color: #5e5e5e;
-}
-.select_option {
-  position: absolute; 
-  top: 28px;
-  left: 0;
-  width: 100%;
-  background: white;
-  color: #5e5e5e;
-  list-style-type: none;
-  padding: 0;
-  overflow: hidden;
-  max-height: 0;
-  transition: .3s ease-in;
-}
-.arrow_icon {
-  position: absolute;
-  height: 40px;
-  align-items: center;
-  display: flex;
-
-}
-.arrow_icon>img {
-  width: 15px;
-  opacity: 0.7;
-  transition: .3s;
-}
-.select_box:focus + .arrow_icon>img {
-  transform: rotate(180deg);
 }
 .camps_count {
   width: 95%;
@@ -346,5 +287,6 @@ input[type=text] {
     #dddddd 0px 1px 2px;
   overflow-y: auto;
   transform: translate(-40%, -60%);
+  z-index: 2;
 }
 </style>

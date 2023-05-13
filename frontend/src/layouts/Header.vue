@@ -41,6 +41,7 @@ export default {
   align-items: center;
   background-color: white;
   letter-spacing: 3px;
+  border-bottom: 1px solid #dddddd; 
 }
 a:link {
   text-decoration: none;
