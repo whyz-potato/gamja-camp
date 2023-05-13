@@ -1,0 +1,121 @@
+[
+  {
+    "lng": 126.991823835789,
+    "lat": 37.5519181289039,
+    "CTPRVN_CD": 11,
+    "CTP_ENG_NM": "Seoul",
+    "CTP_KOR_NM": "서울"
+  },
+  {
+    "lng": 129.069113792843,
+    "lat": 35.2103385848706,
+    "CTPRVN_CD": 26,
+    "CTP_ENG_NM": "Busan",
+    "CTP_KOR_NM": "부산"
+  },
+  {
+    "lng": 128.565358681999,
+    "lat": 35.8298145957631,
+    "CTPRVN_CD": 27,
+    "CTP_ENG_NM": "Daegu",
+    "CTP_KOR_NM": "대구"
+  },
+  {
+    "lng": 126.375515116585,
+    "lat": 37.5845710223089,
+    "CTPRVN_CD": 28,
+    "CTP_ENG_NM": "Incheon",
+    "CTP_KOR_NM": "인천"
+  },
+  {
+    "lng": 126.835434807872,
+    "lat": 35.1557282170845,
+    "CTPRVN_CD": 29,
+    "CTP_ENG_NM": "Gwangju",
+    "CTP_KOR_NM": "광주"
+  },
+  {
+    "lng": 127.394038753653,
+    "lat": 36.3397636035619,
+    "CTPRVN_CD": 30,
+    "CTP_ENG_NM": "Daejeon",
+    "CTP_KOR_NM": "대전"
+  },
+  {
+    "lng": 129.23757900635,
+    "lat": 35.5542219616494,
+    "CTPRVN_CD": 31,
+    "CTP_ENG_NM": "Ulsan",
+    "CTP_KOR_NM": "울산"
+  },
+  {
+    "lng": 127.258722014505,
+    "lat": 36.5607289688083,
+    "CTPRVN_CD": 36,
+    "CTP_ENG_NM": "Sejong-si",
+    "CTP_KOR_NM": "세종"
+  },
+  {
+    "lng": 127.181050092345,
+    "lat": 37.5343492279469,
+    "CTPRVN_CD": 41,
+    "CTP_ENG_NM": "Gyeonggi-do",
+    "CTP_KOR_NM": "경기"
+  },
+  {
+    "lng": 128.30089690812,
+    "lat": 37.7190426394453,
+    "CTPRVN_CD": 42,
+    "CTP_ENG_NM": "Gangwon-do",
+    "CTP_KOR_NM": "강원"
+  },
+  {
+    "lng": 127.831345710985,
+    "lat": 36.7387767849604,
+    "CTPRVN_CD": 43,
+    "CTP_ENG_NM": "Chungcheongbuk-do",
+    "CTP_KOR_NM": "충청북도"
+  },
+  {
+    "lng": 126.849739252084,
+    "lat": 36.5294019948179,
+    "CTPRVN_CD": 44,
+    "CTP_ENG_NM": "Chungcheongnam-do",
+    "CTP_KOR_NM": "충청남도"
+  },
+  {
+    "lng": 127.142738401723,
+    "lat": 35.715810624131,
+    "CTPRVN_CD": 45,
+    "CTP_ENG_NM": "Jeollabuk-do",
+    "CTP_KOR_NM": "전라북도"
+  },
+  {
+    "lng": 126.905233167401,
+    "lat": 34.8781700234423,
+    "CTPRVN_CD": 46,
+    "CTP_ENG_NM": "Jellanam-do",
+    "CTP_KOR_NM": "전라남도"
+  },
+  {
+    "lng": 128.748716038634,
+    "lat": 36.348625792208,
+    "CTPRVN_CD": 47,
+    "CTP_ENG_NM": "Gyeongsangbuk-do",
+    "CTP_KOR_NM": "경상북도"
+  },
+  {
+    "lng": 128.261174771627,
+    "lat": 35.3244989123806,
+    "CTPRVN_CD": 48,
+    "CTP_ENG_NM": "Gyeongsangnam-do",
+    "CTP_KOR_NM": "경상남도"
+  },
+  {
+    "lng": 126.55383952158,
+    "lat": 33.3869992278902,
+    "CTPRVN_CD": 50,
+    "CTP_ENG_NM": "Jeju-do",
+    "CTP_KOR_NM": "제주"
+  }
+]
