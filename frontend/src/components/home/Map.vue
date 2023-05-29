@@ -1,6 +1,7 @@
 <template>
   <div class="sheet">
     <div class="camps">
+      <!--
       <div class="search">
 
         <div class="d-flex">
@@ -30,39 +31,64 @@
           <v-combobox dense outlined rounded placeholder="인원수"></v-combobox>
         </div> 
       </div>
-      
+      -->
+
       <div class="camps_count">검색결과 {{ this.count }} 건</div>
 
-      <div>
-        <div v-for="(list, index) in campList" :key="index" class="camp_list" 
-          @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutToList(index)">
-          <div style="display:flex;">
-            <div v-for="img in list.images" :key="img.index" class="camp_img">
-              <img :src="require(`@/assets/test/${img}`)">
-            </div>
-          </div>
+      <div class="pa-3">
+        <v-row>
+          <v-col v-for="(list, index) in campList" :key="index" cols="12" sm="4">
 
-          <div class="camp_info">
-            <div class="camp_name">{{ list.name }}</div>
-            <div class="camp_rate">
-              <img :src="require('@/assets/imgs/star_icon.png')">
-              <div>{{ list.rate }}</div>
-            </div>       
-          </div>
+            <v-hover v-slot="{ hover }">
+              <v-card class="card" :elevation="hover ? 16 : 2"
+                @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutFromList(index)">
 
-          <div class="camp_price">
-            <span>1박 / </span>
-            <span class="price">{{ list.OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</span>
-            <span> 원~</span>
-          </div>
-        </div>
-      </div>
-      
+                <swiper class="swiper" :options="swiperOption">
+                  <swiper-slide v-for="img in list.images" :key="img.index">
+                    <img :src="require(`@/assets/test/${img}`)" style="width:100%;">
+                  </swiper-slide>
+                  <div class="swiper-pagination" slot="pagination"></div>
+                  <div class="swiper-button-prev" slot="button-prev"></div>
+                  <div class="swiper-button-next" slot="button-next"></div>
+                </swiper>
+
+                <!--
+                <div style="display:flex;">
+                  <div v-for="img in list.images" :key="img.index" class="camp_img">
+                    <img :src="require(`@/assets/test/${img}`)">
+                  </div>
+                </div>
+                -->
+                
+                <div class="pa-2">
+                  <div class="camp_info">
+                    <div class="camp_name">{{ list.name }}</div>
+                    <div class="camp_rate">
+                      <img :src="require('@/assets/imgs/star_icon.png')">
+                      <div>{{ list.rate }}</div>
+                    </div>       
+                  </div>
+
+                  <div class="camp_price">
+                    <span>1박 / </span>
+                    <span class="price">{{ list.OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</span>
+                    <span> 원~</span>
+                  </div>
+                </div>
+                
+              </v-card>
+            </v-hover>
+          </v-col>
+        </v-row>
+      </div>  
     </div>
     
     
     <div id="map" class="map">
       <Search style="position: fixed; z-index: 1;"></Search>
+      <div v-if="showCampInfo" style="width:200px;height:200px;">
+        {{campInfo.name}}
+      </div>
     </div>
   </div>
 </template>
@@ -72,10 +98,14 @@ import camp_list from '@/assets/test/camp_list'
 import si_list from '@/assets/data/si_list'
 import gu_list from '@/assets/data/gu_list'
 import Search from '@/components/home/Search'
+import 'swiper/css/swiper.css'
+import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
 
 export default {
   components: {
-    Search
+    Search,
+    Swiper,
+    SwiperSlide
   },
   data () {
     return {
@@ -86,6 +116,8 @@ export default {
       swLng: null,
       count: null,
       campList: null,
+      campInfo: null,
+      showCampInfo: false,
       markers: [],
       dates: null,
       menu: false,
@@ -93,7 +125,20 @@ export default {
       guList: null,
       si: null,
       gu: null,
-      inputSearch: null
+      inputSearch: null,
+      swiperOption: {
+        loop: true,
+        slidesPerView: 1,
+        spaceBetween: 30,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        }
+      },
     }
   },
   computed: {
@@ -109,11 +154,6 @@ export default {
       const day = ('0' + today.getDate()).slice(-2)
 
       return year + '-' + month + '-' + day
-    },
-    getDay (date) {
-      const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토']
-      let i = new Date(date).getDay(date)
-      return daysOfWeek[i]
     }
   },
   mounted () {
@@ -146,7 +186,6 @@ export default {
       //console.log(this.neLat,this.neLng)
     })
 
-  
     for (let i = 0; i < this.campList.length; i++) {
       const coord = new window.naver.maps.LatLng(this.campList[i].lat, this.campList[i].lng)
       const price = this.campList[i].OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -161,15 +200,28 @@ export default {
 
       this.markers.push(marker)
     }
+    this.markerEvent()
   },
   methods: {
     mouseoverToList (i) {
       const content = this.markers[i].getIcon().content.replace('marker', 'marker-mouseover')
       this.markers[i].setIcon({ content: content })
     },
-    mouseoutToList (i) {
+    mouseoutFromList (i) {
       const content = this.markers[i].getIcon().content.replace('marker-mouseover', 'marker')
       this.markers[i].setIcon({ content: content })
+    },
+    markerEvent () {
+      for (let i = 0; i < this.markers.length; i++) {
+        window.naver.maps.Event.addListener(this.markers[i], 'click', () => {
+          this.openCampInfo(i)
+        })
+      }
+    },
+    openCampInfo (i) {
+      this.campInfo = this.campList[i]
+      console.log(this.campInfo)
+      this.showCampInfo = true
     }
   }
 }
@@ -183,11 +235,11 @@ export default {
   background-color: white;
 }
 .camps {
-  width: 25%; 
+  width: 50%; 
   height: 100%; 
 }
 .map {
-  width: 75%; 
+  width: 50%; 
   height: 100%;
 }
 .search {
@@ -198,9 +250,23 @@ export default {
 .camps_count {
   width: 95%;
   text-align: right;
-  margin-top: 5px;
+  margin-top: 20px;
   margin-bottom: 5px;
   color: #5e5e5e;
+  font-size: 18px;
+}
+.card {
+  cursor: pointer;
+  border-radius: 12px;
+}
+.swiper {
+  /* width: 230px;
+  height: 200px; */
+  width: 100%;
+}
+.swiper-container {
+  --swiper-theme-color: #e4dabc;
+  --swiper-pagination-color: #e4dabc;
 }
 .camp_list {
   width: 95%;
@@ -274,6 +340,22 @@ export default {
   transform: translate(-40%, -60%);
 }
 .marker-mouseover {
+  white-space: nowrap;
+  position: relative;
+  background-color: #FFBB98;
+  line-height: 30px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 15px;
+  transition: 0.5s;
+  padding: 0 8px;
+  box-shadow: #dddddd 0px 0px 0px 1px,
+    #dddddd 0px 1px 2px;
+  overflow-y: auto;
+  transform: translate(-40%, -60%);
+  z-index: 2;
+}
+.marker:hover {
   white-space: nowrap;
   position: relative;
   background-color: #FFBB98;

@@ -52,7 +52,7 @@ export default {
       console.log(this.tabValue)
       console.log(social)
       api.get(`/login`).then(res => {
-        console.log(res.data)
+        console.log(res)
       })
       // this.$router.push({ name: 'Join' })
     }

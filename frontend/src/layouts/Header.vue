@@ -3,8 +3,7 @@
     <div class="header">
       <router-link :to="{ name: 'Home' }" class="home">
         <!--감자 사진 임시로...-->
-        <img :src="require('@/assets/imgs/gamja.png')" width="60px" />
-        감자캠핑
+        <img :src="require('@/assets/imgs/gamjacamp_logo.png')" width="250px" />
       </router-link>
       <div>
         <router-link :to="{ name: 'Home' }">전국캠핑장</router-link>

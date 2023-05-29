@@ -4,7 +4,6 @@ import Home from '@/views/Home'
 import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
-import Owner from '@/views/member/owner/Owner'
 
 Vue.use(VueRouter)
 
@@ -28,11 +27,6 @@ const routes = [
     path: '/join',
     name: 'Join',
     component: Join
-  },
-  {
-    path: '/owner',
-    name: 'Owner',
-    component: Owner
   },
 ]
 
