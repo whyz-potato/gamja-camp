@@ -41,7 +41,8 @@
 
             <v-hover v-slot="{ hover }">
               <v-card class="card" :elevation="hover ? 16 : 2"
-                @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutFromList(index)">
+                @mouseenter="mouseoverToList(index)" @mouseleave="mouseoutFromList(index)"
+                @click="viewCamp(list.id)">
 
                 <swiper class="swiper" :options="swiperOption">
                   <swiper-slide v-for="img in list.images" :key="img.index">
@@ -90,6 +91,10 @@
         {{campInfo.name}}
       </div>
     </div>
+
+    <v-dialog v-model="dialog" width="800">
+      <camp-detail :campDetail="campDetail" :dialog="dialog"></camp-detail>
+    </v-dialog>
   </div>
 </template>
 
@@ -100,12 +105,14 @@ import gu_list from '@/assets/data/gu_list'
 import Search from '@/components/home/Search'
 import 'swiper/css/swiper.css'
 import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+import CampDetail from '@/components/home/CampDetail'
 
 export default {
   components: {
     Search,
     Swiper,
-    SwiperSlide
+    SwiperSlide,
+    CampDetail
   },
   data () {
     return {
@@ -139,6 +146,8 @@ export default {
           prevEl: '.swiper-button-prev',
         }
       },
+      dialog: false,
+      campDetail: null
     }
   },
   computed: {
@@ -222,6 +231,13 @@ export default {
       this.campInfo = this.campList[i]
       console.log(this.campInfo)
       this.showCampInfo = true
+    },
+    viewCamp (id) {
+      // api.get(`/camps/${id}`).then(res => {
+      //   this.campDetail = res.data
+      // })
+      this.campDetail = id
+      this.dialog = true
     }
   }
 }

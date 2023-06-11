@@ -1,0 +1,23 @@
+{
+  "camp": {
+    "id": 11,
+    "name": "맑은 캠핑장",
+    "rate": 4.5,
+    "images": ["test3.jpg", "test1.jpg", "test2.jpg", "test1.jpg", "test3.jpg"],
+    "latitude": 33.33097319668826,
+    "longitude": 126.58849899603574,
+    "address": "제주도 구좌읍 ###-25",
+    "contact": "010-7355-####",
+    "checkInTime": "15:00",
+    "checkOutTime": "10:00",
+    "introduction": "구좌읍에 위치한 캠핑장입니다. 당근밭 체험도 할 수 있어용!"
+  },
+  "price": {
+    "minOneNightPrice": 45000,
+    "totalPrice": 90000
+  },
+  "checkIn": "2023-06-01",
+  "checkOut": "2023-06-03",
+  "guests": 2,
+  "isScraped": true
+}

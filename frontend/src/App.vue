@@ -43,15 +43,9 @@ export default {
 ::-webkit-scrollbar {
   width: 6px;
 }
-::-webkit-scrollbar-track {
-  background-color: white;
-}
-::-webkit-scrollbar-thumb:hover  {
-  border-radius: 3px;
-  background-color: gray;
-}
 ::-webkit-scrollbar-thumb {
   border-radius: 3px;
+  background-color: gray;
   /* background-color: transparent; */
 }
 </style>

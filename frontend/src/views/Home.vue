@@ -1,16 +1,16 @@
 <template>
   <div style="height:100%;">
-    <Map></Map>
+    <CampList></CampList>
   </div>
 </template>
 
 <script>
-import Map from '@/components/home/Map'
+import CampList from '@/components/home/CampList'
 
 export default {
   name: 'Home',
   components: {
-    Map
+    CampList
   },
   data () {
     return {
