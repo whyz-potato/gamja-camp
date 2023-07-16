@@ -48,13 +48,25 @@ export default {
     }
   },
   methods: {
-    login (social) {
-      console.log(this.tabValue)
-      console.log(social)
-      api.get(`/login`).then(res => {
-        console.log(res)
+    login () {
+      // console.log(this.tabValue)
+      // console.log(social)
+      const type = 'c'
+      api.get(`/login`,{ params: { type } }).then(res => {
+        //this.openPopup(res.data[0])
+        api.get(`${res.data[0]}`)
       })
-      // this.$router.push({ name: 'Join' })
+      //this.$router.push({ name: 'Join' })
+      //const ret = window.open('http://localhost:8080/login?type=c', '_blank', 'width=300,height=500')
+      // if (ret != null) {
+      //   console.log(ret)
+        
+      //   window.open('http://localhost:8080/oauth2/authorization/naver', '_blank', 'width=300,height=500')
+      //   //ret.close()
+      // }
+    },
+    openPopup () {
+      window.open('http://localhost:8080/oauth2/authorization/google', '_self', 'width=300,height=500')
     }
   }
 }
