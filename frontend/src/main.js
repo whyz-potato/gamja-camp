@@ -13,6 +13,8 @@ Vue.config.productionTip = false
 Vue.use(VueGeolocation)
 Vue.use(DateRangePicker)
 
+window.Kakao.init('')
+
 new Vue({
   router,
   store,
