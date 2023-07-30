@@ -20,8 +20,8 @@ export default {
   },
   methods: {
     loginTest () {
-      api.get(`/oauth/callback/kakao?code=${this.code}`).then(() => {
-        console.log('성공')
+      api.get(`/login/oauth2/code/kakao?code=${this.code}`).then(res => {
+        console.log(res.data)
       })
     }
   }

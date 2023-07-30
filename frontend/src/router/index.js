@@ -21,7 +21,7 @@ const routes = [
     component: Test
   },
   {
-    path: '/test/login',
+    path: '/login/oauth2/code/kakao',
     name: 'TestLogin',
     component: TestLogin,
     props: {

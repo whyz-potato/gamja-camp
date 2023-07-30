@@ -101,7 +101,7 @@ export default {
     },
     kakaoLogin () {
       const params = {
-        redirectUri: 'http://localhost:7777/test/login'
+        redirectUri: 'http://localhost:7777/login/oauth2/code/kakao'
       }
       window.Kakao.Auth.authorize(params)
     },
