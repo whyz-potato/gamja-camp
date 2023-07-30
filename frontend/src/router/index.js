@@ -5,7 +5,8 @@ import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
 import RoomDetail from '@/views/RoomDetail'
-import TestLogin from '@/views/TestLogin'
+import TestLoginKakao from '@/views/TestLoginKakao'
+import TestLoginGoogle from '@/views/TestLoginGoogle'
 
 Vue.use(VueRouter)
 
@@ -22,8 +23,16 @@ const routes = [
   },
   {
     path: '/login/oauth2/code/kakao',
-    name: 'TestLogin',
-    component: TestLogin,
+    name: 'TestLoginKakao',
+    component: TestLoginKakao,
+    props: {
+      default: true
+    }
+  },
+  {
+    path: '/login/oauth2/code/google',
+    name: 'TestLoginGoogle',
+    component: TestLoginGoogle,
     props: {
       default: true
     }
