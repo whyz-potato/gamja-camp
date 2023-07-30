@@ -4,6 +4,8 @@ import Home from '@/views/Home'
 import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
+import RoomDetail from '@/views/RoomDetail'
+import TestLogin from '@/views/TestLogin'
 
 Vue.use(VueRouter)
 
@@ -19,6 +21,14 @@ const routes = [
     component: Test
   },
   {
+    path: '/test/login',
+    name: 'TestLogin',
+    component: TestLogin,
+    props: {
+      default: true
+    }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: Login
@@ -27,6 +37,11 @@ const routes = [
     path: '/join',
     name: 'Join',
     component: Join
+  },
+  {
+    path: '/roomDetail',
+    name: 'RoomDetail',
+    component: RoomDetail
   },
 ]
 

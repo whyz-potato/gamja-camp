@@ -27,6 +27,12 @@
     <div>
       <v-btn @click="kakaoLogin">카카오로그인</v-btn>
     </div>
+    <div>
+      <v-btn @click="googleLogin">구글로그인</v-btn>
+    </div>
+    <div>
+      <v-btn @click="login">왜안돼?</v-btn>
+    </div>
   </div>
 </template>
 
@@ -95,10 +101,29 @@ export default {
     },
     kakaoLogin () {
       const params = {
-        redirectUri: 'http://localhost:8080/login/oauth2/code/kakao'
+        redirectUri: 'http://localhost:7777/test/login'
       }
       window.Kakao.Auth.authorize(params)
-    }            
+    },
+    googleLogin () {
+      const clientId = '934503312540-qdiapmg4doo3p5fmie1p34mnfnj9bcd8.apps.googleusercontent.com'
+      const redirectUri = 'http://localhost:8080/test/login'
+      
+      const url = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + clientId +
+      '&redirect_uri=' + redirectUri +
+      '&response_type=code' + '&scope=email profile'
+
+      window.open(url, '_blank', 'width=400,height=600')
+    },
+    login () {
+      // api.post(`/oauth2/authorization/kakao?redirect_uri=http://localhost:7777/oauth/kakao`).then(() => {
+      //   console.log('성공')
+
+      // })
+      const url = 'http://localhost:8080/oauth2/authorization/kakao'
+      window.open(url, '_blank', 'width=400,height=600')
+
+    }
   }
 }
 </script>
