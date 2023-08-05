@@ -23,7 +23,7 @@
       </div>
     </v-container>
 
-    <!--카카오로그인-->
+    <!--카카오로그인
     <div>
       <v-btn @click="kakaoLogin">카카오로그인</v-btn>
     </div>
@@ -32,7 +32,7 @@
     </div>
     <div>
       <v-btn @click="login">왜안돼?</v-btn>
-    </div>
+    </div>-->
     <div>
       <a href="http://localhost:8080/oauth2/authorization/kakao">카카오로그인</a>
     </div>
