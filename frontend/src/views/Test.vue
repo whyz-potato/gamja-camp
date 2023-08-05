@@ -106,7 +106,7 @@ export default {
       window.Kakao.Auth.authorize(params)
     },
     googleLogin () {
-      const clientId = '934503312540-qdiapmg4doo3p5fmie1p34mnfnj9bcd8.apps.googleusercontent.com'
+      const clientId = process.env.VUE_APP_GOOGLE_ID
       const redirectUri = 'http://localhost:7777/login/oauth2/code/google'
       
       const url = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + clientId +
