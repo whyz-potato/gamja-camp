@@ -33,6 +33,9 @@
     <div>
       <v-btn @click="login">왜안돼?</v-btn>
     </div>
+    <div>
+      <a href="http://localhost:8080/oauth2/authorization/kakao">카카오로그인</a>
+    </div>
   </div>
 </template>
 
@@ -106,7 +109,7 @@ export default {
       window.Kakao.Auth.authorize(params)
     },
     googleLogin () {
-      const clientId = process.env.VUE_APP_GOOGLE_ID
+      const clientId = ''
       const redirectUri = 'http://localhost:7777/login/oauth2/code/google'
       
       const url = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + clientId +

@@ -6,19 +6,22 @@
 
 <script>
 import CampList from '@/components/home/CampList'
+import api from '@/api'
 
 export default {
   name: 'Home',
   components: {
     CampList
   },
+  mounted() {
+    api.get('/login-memer').then(res => {
+      console.log(res.data)
+    })
+  },
   data () {
     return {
 
     }
-  },
-  mounted () {
-
   },
   methods: {
 

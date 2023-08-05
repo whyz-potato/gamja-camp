@@ -4,7 +4,7 @@ import Home from '@/views/Home'
 import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
-import RoomDetail from '@/views/RoomDetail'
+//import RoomDetail from '@/views/RoomDetail'
 import TestLoginKakao from '@/views/TestLoginKakao'
 import TestLoginGoogle from '@/views/TestLoginGoogle'
 
@@ -47,11 +47,11 @@ const routes = [
     name: 'Join',
     component: Join
   },
-  {
-    path: '/roomDetail',
-    name: 'RoomDetail',
-    component: RoomDetail
-  },
+  // {
+  //   path: '/roomDetail',
+  //   name: 'RoomDetail',
+  //   component: RoomDetail
+  // },
 ]
 
 const router = new VueRouter({
