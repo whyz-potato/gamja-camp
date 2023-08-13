@@ -21,15 +21,15 @@
     <div class="line"></div>
 
     <div>
-      <div class="button" @click="login('kakao')">
+      <div class="button">
         <img class="logo" :src="require('@/assets/imgs/k-logo.png')"/>
         <a href="http://localhost:8080/oauth2/authorization/kakao" class="button-text">카카오 로그인</a>
       </div>
-      <div class="button" @click="login('naver')">
+      <div class="button">
         <img class="logo" :src="require('@/assets/imgs/n-logo.png')"/>
         <a href="http://localhost:8080/oauth2/authorization/naver" class="button-text">네이버 로그인</a>
       </div>
-      <div class="button" @click="login('google')">
+      <div class="button">
         <img class="logo" :src="require('@/assets/imgs/g-logo.png')"/>
         <a href="http://localhost:8080/oauth2/authorization/google" class="button-text">구글 로그인</a>
       </div>
@@ -39,7 +39,6 @@
 
 
 <script>
-import api from '@/api/index'
 
 export default {
   data (){
@@ -48,26 +47,7 @@ export default {
     }
   },
   methods: {
-    login () {
-      // console.log(this.tabValue)
-      // console.log(social)
-      const type = 'c'
-      api.get(`/login`,{ params: { type } }).then(res => {
-        //this.openPopup(res.data[0])
-        api.get(`${res.data[2]}`)
-      })
-      //this.$router.push({ name: 'Join' })
-      //const ret = window.open('http://localhost:8080/login?type=c', '_blank', 'width=300,height=500')
-      // if (ret != null) {
-      //   console.log(ret)
-        
-      //   window.open('http://localhost:8080/oauth2/authorization/naver', '_blank', 'width=300,height=500')
-      //   //ret.close()
-      // }
-    },
-    openPopup () {
-      window.open('http://localhost:8080/oauth2/authorization/google', '_self', 'width=300,height=500')
-    }
+
   }
 }
 </script>

@@ -19,16 +19,6 @@
         </v-card>
       </div>
     </v-container>
-
-    <div>
-      <a href="http://localhost:8080/oauth2/authorization/kakao">카카오로그인</a>
-    </div>
-    <div>
-      <a href="http://localhost:8080/oauth2/authorization/google">google</a>
-    </div>
-    <div>
-      <a href="http://localhost:8080/oauth2/authorization/naver">naver</a>
-    </div>
   </div>
 </template>
 
@@ -43,11 +33,14 @@ export default {
       uid: '',
       message: '',
       recvList: [],
-      token: ''
     }
   },
   created () {
-    this.connect()
+  api.get('/chats/csrf').then(res => {
+      console.log(res.data)
+      this.connect(res.data.headerName, res.data.token)
+    })
+    
   },
   methods: {
     sendMessage(e) {
@@ -70,14 +63,9 @@ export default {
         this.stompClient.send("/receive", JSON.stringify(msg), {})
       }
     }, 
-    connect() {
-      api.get('/chats/csrf').then(res => {
-        console.log(res.data)
-        this.token = res.data.token
-      })
-      
+    connect(headerName, token) {
       let socket = new SockJS('http://localhost:8080/chats')
-      let headers = { 'X-CSRF-TOKEN': this.token }
+      let headers = { [headerName]: token }
       this.stompClient = Stomp.over(socket)
 
       console.log(`소켓 연결을 시도합니다`)
