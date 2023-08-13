@@ -20,16 +20,6 @@
       </div>
     </v-container>
 
-    <!--카카오로그인-->
-    <div>
-      <a href="http://localhost:8080/oauth2/authorization/kakao">카카오로그인</a>
-    </div>
-    <div>
-      <a href="http://localhost:8080/oauth2/authorization/google">구글로그인</a>
-    </div>
-    <div>
-      <v-btn @click="login">왜안돼?</v-btn>
-    </div>
     <div>
       <a href="http://localhost:8080/oauth2/authorization/kakao">카카오로그인</a>
     </div>
@@ -67,7 +57,7 @@ export default {
       }
     },
     send() {
-      console.log("Send message:" + this.message);
+      console.log("Send message:" + this.message)
       if (this.stompClient && this.stompClient.connected) {
         const msg = { 
         user: {
@@ -85,7 +75,6 @@ export default {
         console.log(res.data)
         this.token = res.data.token
       })
-
       
       let socket = new SockJS('http://localhost:8080/chats')
       let headers = { 'X-CSRF-TOKEN': this.token }
