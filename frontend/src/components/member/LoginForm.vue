@@ -23,15 +23,15 @@
     <div>
       <div class="button" @click="login('kakao')">
         <img class="logo" :src="require('@/assets/imgs/k-logo.png')"/>
-        <span class="button-text">카카오 로그인</span>
+        <a href="http://localhost:8080/oauth2/authorization/kakao" class="button-text">카카오 로그인</a>
       </div>
       <div class="button" @click="login('naver')">
         <img class="logo" :src="require('@/assets/imgs/n-logo.png')"/>
-        <span class="button-text">네이버 로그인</span>
+        <a href="http://localhost:8080/oauth2/authorization/naver" class="button-text">네이버 로그인</a>
       </div>
       <div class="button" @click="login('google')">
         <img class="logo" :src="require('@/assets/imgs/g-logo.png')"/>
-        <span class="button-text">구글 로그인</span>
+        <a href="http://localhost:8080/oauth2/authorization/google" class="button-text">구글 로그인</a>
       </div>
     </div>
   </div>
@@ -54,7 +54,7 @@ export default {
       const type = 'c'
       api.get(`/login`,{ params: { type } }).then(res => {
         //this.openPopup(res.data[0])
-        api.get(`${res.data[0]}`)
+        api.get(`${res.data[2]}`)
       })
       //this.$router.push({ name: 'Join' })
       //const ret = window.open('http://localhost:8080/login?type=c', '_blank', 'width=300,height=500')
@@ -149,5 +149,13 @@ input:checked ~ label{
   margin: auto;
   text-align: center;
   letter-spacing: 3px;
+}
+a:link {
+  color: black;
+  text-decoration: none;
+}
+a:visited {
+  color: black;
+  text-decoration: none;
 }
 </style>

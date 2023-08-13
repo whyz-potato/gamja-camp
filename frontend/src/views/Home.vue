@@ -14,7 +14,7 @@ export default {
     CampList
   },
   mounted() {
-    api.get('/login-memer').then(res => {
+    api.get('/login-member').then(res => {
       console.log(res.data)
     })
   },

@@ -1,9 +1,6 @@
 <template>
   <div>
     test
-    <!--BE 연결테스트-->
-    <v-btn @click="test">test</v-btn>
-
     <!--채팅 테스트-->
     <v-container>
       uid : 
@@ -23,48 +20,40 @@
       </div>
     </v-container>
 
-    <!--카카오로그인
-    <div>
-      <v-btn @click="kakaoLogin">카카오로그인</v-btn>
-    </div>
-    <div>
-      <v-btn @click="googleLogin">구글로그인</v-btn>
-    </div>
-    <div>
-      <v-btn @click="login">왜안돼?</v-btn>
-    </div>-->
     <div>
       <a href="http://localhost:8080/oauth2/authorization/kakao">카카오로그인</a>
+    </div>
+    <div>
+      <a href="http://localhost:8080/oauth2/authorization/google">구글로그인</a>
+    </div>
+    <div>
+      <a href="http://localhost:8080/oauth2/authorization/naver">네이버로그인</a>
     </div>
   </div>
 </template>
 
 <script>
-import api from '@/api'
 import Stomp from 'webstomp-client'
 import SockJS from 'sockjs-client'
+import api from '@/api'
 
 export default {
   data () {
     return {
       uid: '',
       message: '',
-      recvList: []
+      recvList: [],
+      token: ''
     }
   },
   created () {
-    //this.connect()
+    this.connect()
   },
   methods: {
-    test () {
-      api.get('/test').then(res => {
-        console.log(res.data)
-      })
-    },
     sendMessage(e) {
       if(e.keyCode === 13 && this.uid !== '' && this.message !== '') {
-        this.send();
-        this.message = '';
+        this.send()
+        this.message = ''
       }
     },
     send() {
@@ -77,55 +66,38 @@ export default {
         message: this.message,
         sendAt: Date.now(),
         isRequest: false,
-        };
-        this.stompClient.send("/receive", JSON.stringify(msg), {});
+        }
+        this.stompClient.send("/receive", JSON.stringify(msg), {})
       }
     }, 
     connect() {
-      const serverURL = "http://localhost:8080"
-      let socket = new SockJS(serverURL);
-      this.stompClient = Stomp.over(socket);
-      console.log(`소켓 연결을 시도합니다. 서버 주소: ${serverURL}`)
+      api.get('/chats/csrf').then(res => {
+        console.log(res.data)
+        this.token = res.data.token
+      })
+
+      
+      let socket = new SockJS('http://localhost:8080/chats')
+      let headers = { 'X-CSRF-TOKEN': this.token }
+      this.stompClient = Stomp.over(socket)
+
+      console.log(`소켓 연결을 시도합니다`)
+
       this.stompClient.connect(
-        {},
+        headers,
         frame => {
-          this.connected = true;
-          console.log('소켓 연결 성공', frame);
-          this.stompClient.subscribe("/send", res => {
-            console.log('구독으로 받은 메시지 입니다.', res.body);
-            this.recvList.push(JSON.parse(res.body))
-          });
+          this.connected = true
+          console.log('소켓 연결 성공', frame)
+          // this.stompClient.subscribe("/send", res => {
+          //   console.log('구독으로 받은 메시지 입니다.', res.body)
+          //   this.recvList.push(JSON.parse(res.body))
+          // })
         },
         error => {
-          console.log('소켓 연결 실패', error);
-          this.connected = false;
+          console.log('소켓 연결 실패', error)
+          this.connected = false
         } 
-      );   
-    },
-    kakaoLogin () {
-      const params = {
-        redirectUri: 'http://localhost:7777/login/oauth2/code/kakao'
-      }
-      window.Kakao.Auth.authorize(params)
-    },
-    googleLogin () {
-      const clientId = ''
-      const redirectUri = 'http://localhost:7777/login/oauth2/code/google'
-      
-      const url = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + clientId +
-      '&redirect_uri=' + redirectUri +
-      '&response_type=code' + '&scope=email profile'
-
-      window.open(url, '_blank', 'width=400,height=600')
-    },
-    login () {
-      // api.post(`/oauth2/authorization/kakao?redirect_uri=http://localhost:7777/oauth/kakao`).then(() => {
-      //   console.log('성공')
-
-      // })
-      const url = 'http://localhost:8080/oauth2/authorization/kakao'
-      window.open(url, '_blank', 'width=400,height=600')
-
+      )
     }
   }
 }
