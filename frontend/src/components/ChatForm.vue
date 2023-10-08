@@ -21,7 +21,7 @@
         <v-divider class="mx-2"></v-divider>
         <v-window v-model="sheet">
           <v-window-item :value="1">
-            
+
             <!-- 테스트용 -->
             <div v-if="chatRoomList.length == 0">
               방없음
@@ -86,7 +86,7 @@
               </div>
               <div class="d-flex">
                 <textarea v-model="message" cols="40" rows="1" name="text" 
-                  class="input-chat" @keydown.enter="send()"></textarea>
+                  class="input-chat" @keydown.enter="send($event)"></textarea>
                 <v-btn @click="send" class="ml-2 mt-5" color="grey" text rounded>전송</v-btn>
               </div>
             </div>          
@@ -219,7 +219,8 @@ export default {
         } 
       )
     },
-    send() {
+    send(e) {
+      e.preventDefault()
       //console.log("Send message:" + this.message)
       if (this.stompClient && this.stompClient.connected && this.message!='') {
         const msg = { 
