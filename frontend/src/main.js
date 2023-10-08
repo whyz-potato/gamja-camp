@@ -6,12 +6,15 @@ import vuetify from './plugins/vuetify'
 import VueGeolocation from 'vue-geolocation-api'
 import DateRangePicker from 'vue2-daterange-picker'
 import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
-import 'material-icons/iconfont/material-icons.css';
+import 'material-icons/iconfont/material-icons.css'
+import VueCookies from 'vue-cookies'
 
 Vue.config.productionTip = false
 
 Vue.use(VueGeolocation)
 Vue.use(DateRangePicker)
+Vue.use(VueCookies)
+Vue.$cookies.config('1d')
 
 window.Kakao.init('')
 
