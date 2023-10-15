@@ -32,7 +32,7 @@
               <v-list rounded flat>
                 <v-list-item-group>
                   <v-list-item v-for="list in chatRoomList" :key="list.index" 
-                    @click="showChats(list.roomId, list.title, list.lastMessage.id)">
+                    @click="getMessageList(list.roomId, list.title, list.lastMessage.id)">
                     <v-list-item-avatar>
                       <img :src="list.lastMessage.from.picture">
                     </v-list-item-avatar>
@@ -45,7 +45,7 @@
                       <v-spacer></v-spacer>
                     </v-list-item-content>
                     <v-list-item-action>
-                      <v-list-item-action-text>{{list.lastMessage.date.toString().slice(0,10)}}</v-list-item-action-text>
+                      <v-list-item-action-text>{{lastMessageDateTime(list.lastMessage.date, list.lastMessage.time)}}</v-list-item-action-text>
                       <div v-if="list.numUnreadMessages!=0" class="message-count">{{list.numUnreadMessages}}</div>
                     </v-list-item-action>   
                   </v-list-item>
@@ -59,7 +59,7 @@
               <div class="message-list" ref="chatRef" v-scroll.self="onScroll">
                 <div v-for="(list, index) in messageList" :key="index">
                   <div v-if="userId == list.from.id" class="my-message">
-                    <p class="message-time" v-if="sameTime(index)" >
+                    <p class="message-time" v-if="sameTime(null, index)" >
                       {{list.time.toString().slice(0,5)}}
                     </p>
                     <p class="my-message-paragraph">{{list.content}}</p>
@@ -68,20 +68,61 @@
                   <div v-else class="your-message">
                     <div class="your-message-avartar">
                       <img :src="list.from.picture" class="your-message-img"
-                         v-if="sameUser(index)">
+                         v-if="sameUser(null, index)">
                     </div>
                     <div>
-                      <p class="your-message-user" v-if="sameUser(index)">
+                      <p class="your-message-user" v-if="sameUser(null, index)">
                         {{list.from.username}}
                       </p>
                       <div class="your-message-p">
                         <p class="your-message-paragraph">{{list.content}}</p>
-                        <p class="message-time" v-if="sameTime(index)">
+                        <p class="message-time" v-if="sameTime(null, index)">
                           {{list.time.toString().slice(0,5)}}
                         </p>
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div v-if="subMessageList.length != 0">
+                  <div v-for="(list, index) in subMessageList" :key="index">
+                    <div v-if="userId == list.from.id" class="my-message">
+                      <p class="message-time" v-if="sameTime('sub', index)" >
+                        {{list.time.toString().slice(0,5)}}
+                      </p>
+                      <p class="my-message-paragraph">{{list.content}}</p>
+                    </div>
+
+                    <div v-else class="your-message">
+                      <div class="your-message-avartar">
+                        <img :src="list.from.picture" class="your-message-img"
+                          v-if="sameUser('sub', index)">
+                      </div>
+                      <div>
+                        <p class="your-message-user" v-if="sameUser('sub', index)">
+                          {{list.from.username}}
+                        </p>
+                        <div class="your-message-p">
+                          <p class="your-message-paragraph">{{list.content}}</p>
+                          <p class="message-time" v-if="sameTime('sub', index)">
+                            {{list.time.toString().slice(0,5)}}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="new-message" v-if="!bottom && recentMessageUserName != ''" @click="scrollToBottom">
+                  <div class="username">{{recentMessageUserName}}</div>
+                  <div class="content">{{recentMessageContent}}</div>
+                  <div>
+                    <v-icon color="white" class="mr-1">mdi-chevron-down</v-icon>
+                  </div>
+                </div>
+
+                <div class="scrolldown-btn" v-if="!bottom && recentMessageUserName == ''" @click="scrollToBottom">
+                  <v-icon large>mdi-chevron-down</v-icon>
                 </div>
               </div>
               <div class="d-flex">
@@ -89,7 +130,7 @@
                   class="input-chat" @keydown.enter="send($event)"></textarea>
                 <v-btn @click="send" class="ml-2 mt-5" color="grey" text rounded>전송</v-btn>
               </div>
-            </div>          
+            </div>
           </v-window-item>
         </v-window>
       </v-card>        
@@ -108,17 +149,20 @@ export default {
     return {
       dialog: false,
       chatRoomList: [],
+      roomId: null,
       roomTitle: null,
       sheet: 1,
-      dbMessageList: [],
       messageList: [],
       userId: null,
       message: '',
-      recvMessageList: [],
-      prevMessageList: [],
+      subMessageList: [],
+      beforMessageList: [],
       showPrevMessage: false,
-      firstMessage: false,
-      prevScrollHeight: 0,
+      beforScrollHeight: 0,
+      bottom: false,
+      recentMessageUserName: '',
+      recentMessageContent: '',
+      recentMessageUserId: ''
     }
   },
   watch: {
@@ -127,12 +171,14 @@ export default {
       if (this.dialog) {
         api.get('/chats').then(res => {
           this.chatRoomList = res.data.chats
+          console.log(this.chatRoomList)
         })
         this.userId = this.$cookies.get('id')
         //console.log(this.userId)
       } else {
         this.sheet = 1
-        this.recvMessageList = []
+        this.subMessageList = []
+        this.roomId = null
       }
     },
     sheet () {
@@ -141,23 +187,40 @@ export default {
         api.get('/chats').then(res => {
           this.chatRoomList = res.data.chats
         })
-        this.recvMessageList = []
+        this.subMessageList = []
+        this.roomId = null
+
+        // this.stompClient.unsubscribe(`/topic/3`, res => {
+        //   console.log(res.data)
+        // })
       }
     },
     messageList () {
       this.$nextTick(() => {
         if (this.messageList.length <= 10) {
           this.$refs.chatRef.scrollTo({ top: this.$refs.chatRef.scrollHeight, behavior: 'smooth' })
+          this.bottom = true
         } else {
-          this.$refs.chatRef.scrollTop = this.$refs.chatRef.scrollHeight - this.prevScrollHeight
+          this.$refs.chatRef.scrollTop = this.$refs.chatRef.scrollHeight - this.beforScrollHeight
         }
       })
     },
-    recvMessageList () {
+    subMessageList () {
       this.$nextTick(() => {
-        if (this.sheet == 2) {
+        if (this.sheet == 2 && this.bottom == true) {
           this.$refs.chatRef.scrollTo({ top: this.$refs.chatRef.scrollHeight, behavior: 'smooth' })
-        }
+        } else if (this.sheet == 2 && this.bottom == false && this.recentMessageUserId == this.userId) {
+          this.$refs.chatRef.scrollTo({ top: this.$refs.chatRef.scrollHeight, behavior: 'smooth' })
+        } 
+        // if (this.subMessageList.length != 0) {
+        //   //const recentMessageUserId = this.subMessageList[this.subMessageList.length - 1].from.id
+
+          
+        //   // else if (this.sheet == 2 && this.bottom == false && recentMessageUserId != this.userId) {
+        //   //   this.recentMessageUserName = this.subMessageList[this.subMessageList.length - 1].from.username
+        //   //   this.recentMessageContent = this.subMessageList[this.subMessageList.length - 1].content
+        //   // }
+        // }
       })
     }
   },
@@ -168,27 +231,56 @@ export default {
         case 2: return this.roomTitle
         default: return '채팅목록'
       }
+    },
+    lastMessageDateTime () {
+      return (date, time) => {
+        const today = new Date()
+        const stringToday = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+        
+        if (stringToday == date) {
+          return time.toString().slice(0, 5)
+        }
+
+        return date
+      }
+      
     }
   },
   mounted () {
     api.get('/chats/csrf').then(res => {
-      console.log(res.data)
       this.connect(res.data.headerName, res.data.token)
     })
   },
   methods: {
-    showChats (roomId, title, messageId) {
+    getMessageList (roomId, title, messageId) {
       this.roomId = roomId
       this.roomTitle = title
       this.sheet = 2
 
       api.get(`/chats/${this.roomId}`).then(res => {
         //console.log(res.data.messages)
-        this.dbMessageList = res.data.messages
         this.messageList = res.data.messages
       })
       api.post(`/chats/${this.roomId}/last-read/${messageId}`).then(()=> {
       })
+
+      // this.stompClient.subscribe(`/topic/3`, res => {
+      //   if (this.dialog && this.sheet == 2) {
+      //     this.recentMessageUserId = JSON.parse(res.body).from.id
+
+      //     if (this.bottom == false && this.recentMessageUserId != this.userId) {
+      //       this.recentMessageUserName = JSON.parse(res.body).from.username
+      //       this.recentMessageContent = JSON.parse(res.body).content
+      //     }
+
+      //     this.subMessageList.push(JSON.parse(res.body))
+      //     console.log('subscribe', this.subMessageList)
+
+      //     const recentMessageId = JSON.parse(res.body).id
+      //     api.post(`/chats/${this.roomId}/last-read/${recentMessageId}`).then(()=> {
+      //     })
+      //   }
+      // })
     },
     connect(headerName, token) {
       let socket = new SockJS('http://localhost:8080/socket')
@@ -200,12 +292,17 @@ export default {
         frame => {
           this.connected = true
           console.log('소켓 연결 성공', frame)
-          this.stompClient.subscribe("/topic/3", res => {
+          this.stompClient.subscribe(`/topic/3`, res => {
             if (this.dialog && this.sheet == 2) {
-              this.recvMessageList.push(JSON.parse(res.body))
-              console.log('recv', this.recvMessageList)
+              this.recentMessageUserId = JSON.parse(res.body).from.id
 
-              this.messageList = this.dbMessageList.concat(this.recvMessageList)
+              if (this.bottom == false && this.recentMessageUserId != this.userId) {
+                this.recentMessageUserName = JSON.parse(res.body).from.username
+                this.recentMessageContent = JSON.parse(res.body).content
+              }
+
+              this.subMessageList.push(JSON.parse(res.body))
+              console.log('subscribe', this.subMessageList)
 
               const recentMessageId = JSON.parse(res.body).id
               api.post(`/chats/${this.roomId}/last-read/${recentMessageId}`).then(()=> {
@@ -232,38 +329,68 @@ export default {
 
       this.message = ''
     }, 
-    sameTime (index) {
-      if (index == this.messageList.length-1) return true
-      else if (this.messageList[index].time.toString().slice(0,5) != this.messageList[index+1].time.toString().slice(0,5)
-        || this.messageList[index].from.id != this.messageList[index+1].from.id
+    sameTime (type, index) {
+      let list = []
+
+      if (type == 'sub') {
+        list = this.subMessageList
+      } else list = this.messageList
+
+      if (index == list.length-1) return true
+      else if (list[index].time.toString().slice(0,5) != list[index+1].time.toString().slice(0,5)
+        || list[index].from.id != list[index+1].from.id
       ) return true
 
       return false
     },
-    sameUser (index) {
+    sameUser (type, index) {
+      let list = []
+
+      if (type == 'sub') {
+        list = this.subMessageList
+      } else list = this.messageList
+
       if (index == 0) return true
       else if (
-        this.messageList[index-1].time.toString().slice(0,5) != this.messageList[index].time.toString().slice(0,5)
-        || this.messageList[index-1].from.id != this.messageList[index].from.id
+        list[index-1].time.toString().slice(0,5) != list[index].time.toString().slice(0,5)
+        || list[index-1].from.id != list[index].from.id
       ) return true
 
       return false
     },
     onScroll (e) {
-      if (e.target.scrollTop == 0) {
-        this.prevScrollHeight = e.target.scrollHeight
+      const scrollTop = e.target.scrollTop
+      const scrollHeight = e.target.scrollHeight
+      const clientHeight = this.$refs.chatRef.clientHeight
+      
+      //console.log('scrollTop', scrollTop, 'scrollHeight', scrollHeight, 'clientHeight', clientHeight )
+
+      if (scrollTop == 0) {
+        this.beforScrollHeight = scrollHeight
 
         const messageId = this.messageList[0].id
 
         api.get(`/chats/${this.roomId}?start=${messageId}`).then(res => {
           //console.log(res.data.messages)
-          this.prevMessageList = res.data.messages
+          this.beforMessageList = res.data.messages
 
-          if (this.prevMessageList.length != 0) {
-            this.messageList = this.prevMessageList.concat(this.messageList)           
+          if (this.beforMessageList.length != 0) {
+            this.messageList = this.beforMessageList.concat(this.messageList)           
           }
         })
       }
+
+      if (scrollTop + clientHeight + 10 >= scrollHeight) {
+        this.bottom = true
+        this.recentMessageUserName = ''
+        this.recentMessageContent = ''
+      } else if(scrollTop + clientHeight < scrollHeight + 100) {
+        this.bottom = false
+      }
+      
+    },
+    scrollToBottom () {
+      this.$refs.chatRef.scrollTo({ top: this.$refs.chatRef.scrollHeight, behavior: 'smooth' })
     },
     makeSingleRoom () {
       api.post('/chats/single', {to: 1}).then(res => {
@@ -297,6 +424,8 @@ export default {
   padding-left: 10px;
   padding-right: 10px;
   overflow: scroll;
+  position: relative;
+  z-index: 1;
 }
 .my-message {
   display: flex;
@@ -370,4 +499,47 @@ export default {
 /* .v-list-item--active {
   background-color: white;
 } */
+.new-message {
+  position: fixed;
+  z-index: 100;
+  height: 30px;
+  width: 250px;
+  line-height : 30px;
+  border-radius: 50px;
+  background: #bdbdbd;
+  opacity: 0.6;
+  left: 50%;
+  top: 70%;
+  margin-left: -125px;
+  display: flex;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+}
+.new-message > .username {
+  width: 50px;
+  margin-left: 10px;
+  margin-right: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.new-message > .content {
+  width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scrolldown-btn {
+  position: fixed;
+  z-index: 100;
+  height: 40px;
+  width: 40px;
+  line-height : 30px;
+  border-radius: 50px;
+  left: 50%;
+  top: 70%;
+  margin-left: -20px;
+  cursor: pointer;
+}
 </style>

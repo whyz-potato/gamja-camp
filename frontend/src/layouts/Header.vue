@@ -12,21 +12,39 @@
       <div class="login">
         <router-link :to="{ name: 'Login' }" v-if="!isLogin">로그인</router-link>
         <router-link :to="{ name: 'Test' }" v-else>마이페이지</router-link>
+        <a href="http://localhost:8080/logout" v-if="isLogin" @click="logout">로그아웃</a>
+        <!-- <div class="icon">
+          <v-icon>mdi-menu</v-icon>
+          <img class="image" :src="require(`@/assets/imgs/gamja.png`)" >
+        </div> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   data () {
     return {
-      isLogin: false
+      
+    }
+  },
+  computed: {
+    ...mapState(['isLogin'])
+  },
+  mounted () {
+    if (this.$cookies.isKey('id')) {
+      this.$store.state.isLogin = true
     }
   },
   methods: {
     goHome () {
       this.$router.push('/')
+    },
+    logout () {
+      this.$cookies.remove('id')
+      this.$store.state.isLogin = false
     }
   }
 }
@@ -69,5 +87,21 @@ a:hover {
 .login {
   margin-left: auto;
   margin-right: 40px;
+  display: flex;
 }
+/* .login > .icon {
+  display: flex;
+  width: 80px;
+  height: 40px;
+  border-radius: 50px;
+  border: 1px solid #9c9c9c;
+  padding: 5px;
+
+}
+.image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50px;
+
+} */
 </style>
