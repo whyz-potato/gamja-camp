@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="500"
+    <v-menu v-model="menu" :close-on-content-click="false" 
       transition="scale-transition" bottom rounded="lg" max-width="700">
       <template v-slot:activator="{ on, attrs }">
         <div v-bind="attrs" v-on="on" class="search-bar">
@@ -17,8 +17,8 @@
 
       <v-card class="card pa-3">
         <div class="tab">
-          <!--
-          <v-item-group>
+          
+          <!-- <v-item-group>
             <v-item v-for="tab in tabs" :key="tab.index"
               v-slot="{ active, toggle }">
               <v-btn active-class="primary" :input-value="active"
@@ -34,32 +34,36 @@
               outlined>{{ tab }}</v-chip>
           </v-chip-group>
           -->
-          <button v-on:click="currentTab = 0">
+
+          
+          <button v-on:click="currentTab = 0" value="0">
             <div>
               <div class="btn-title">지역</div>
-              <div class="btn-subtitle">구/시</div>
+              <div class="btn-subtitle">{{ selectArea }}</div>
             </div>    
           </button>
+
           <button v-on:click="currentTab = 1">
             <div class="d-flex">
               <div class="mr-8">
                 <div class="btn-title">체크인</div>
-                <div class="btn-subtitle">22</div>
+                <div class="btn-subtitle">{{ checkIn }}</div>
               </div>
               <div>
                 <div class="btn-title">체크아웃</div>
-                <div class="btn-subtitle">22</div>
+                <div class="btn-subtitle">{{ checkOut }}</div>
               </div>
             </div>
             
           </button>
           <button v-on:click="currentTab = 2">
             <div>
-               <div class="btn-title">인원수</div>
-              <div class="btn-subtitle">11</div>
+              <div class="btn-title">인원수</div>
+              <div class="btn-subtitle">{{ guest }}</div>
             </div>
           </button>
-          <button style="background: #e4dabc;">
+
+          <button @click="search" style="background: #e4dabc;">
             <v-icon class="material-icons">search</v-icon>
           </button>
         </div>
@@ -83,7 +87,7 @@
                   <v-item v-for="list in guList" :key="list.index"
                     v-slot="{ active, toggle }">
                     <v-btn active-class="primary" :input-value="active"
-                      @click="toggle" rounded outlined color="grey"
+                      @click="[toggle, selectGu(list.SIG_KOR_NM, list.lat, list.lng)]" rounded outlined color="grey"
                       class="ma-1">{{ list.SIG_KOR_NM }}</v-btn>
                   </v-item>
                 </v-item-group>
@@ -93,24 +97,55 @@
           </v-window-item>
 
           <v-window-item :value="1">
-            <div class="d-flex">
+            <div class="datePicker">
               <div>
-                <div>체크인</div>
-                <v-date-picker class="ma-3" no-title
-                  :first-day-of-week="1" :min="today" ></v-date-picker>
+                <v-date-picker class="ma-3" v-model="checkIn" no-title color="primary"
+                  :first-day-of-week="1" :min="today"
+                  :weekday-format="getDay"
+                  :month-format="getMonth"
+                  :title-date-format="getMonth"
+                  :header-date-format="getHeaderTitleMonth"
+                  reactive></v-date-picker>
               </div>
               <v-divider vertical></v-divider>
               <div>
-                <div>체크아웃</div>
-                <v-date-picker class="ma-3" no-title
-                  :first-day-of-week="1" :min="today" ></v-date-picker>
+                <v-date-picker class="ma-3" v-model="checkOut" no-title color="primary"
+                  :first-day-of-week="1" :min="afterCheckInDate" 
+                  :weekday-format="getDay"
+                  :month-format="getMonth"
+                  :title-date-format="getMonth"
+                  :header-date-format="getHeaderTitleMonth"
+                  :disabled="!checkIn"
+                  ></v-date-picker>
               </div>
             </div>
             
           </v-window-item>
 
           <v-window-item :value="2">
-            인원
+            <div class="guest">
+              <div class="guest-type">
+                <span>어른</span>
+                <v-btn icon outlined color="grey">
+                  <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+                <v-btn icon outlined color="grey">
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </div>
+              <v-divider></v-divider>
+              <div>
+                <span>어린이</span>
+                <v-btn></v-btn>
+                <v-btn></v-btn>
+              </div>
+              <v-divider></v-divider>
+              <div>
+                <span>반려동물</span>
+                <v-btn></v-btn>
+                <v-btn></v-btn>
+              </div>
+            </div>
           </v-window-item>
         </v-window>
 
@@ -123,30 +158,38 @@
 <script>
 import si_list from '@/assets/data/si_list'
 import gu_list from '@/assets/data/gu_list'
+import api from '@/api'
 
 export default {
+  props: {
+    coords: {}
+  },
   data () {
     return {
-      dates: null,
       menu: false,
       siList: null,
       allGuList: null,
       si: null,
       gu: null,
       inputSearch: null,
-      search: false,
+      //search: false,
       tabs: [ "지역", "기간", "인원" ],
       currentTab: 0,
       guList: [],
-      daterange: { startDaate: null, endDate: null }
+      daterange: { startDaate: null, endDate: null },
+      //value: 1,
+      selectArea: '',
+      guest: null,
+      checkIn: null,
+      checkOut: null,
     }
   },
   computed: {
-    dateRangeText () {
-      if(this.dates) {
-        return this.dates.join(' ~ ')
-      } return ''
-    },
+    // dateRangeText () {
+    //   if(this.dates) {
+    //     return this.dates.join(' ~ ')
+    //   } return ''
+    // },
     today () {
       const today = new Date()
       const year = today.getFullYear()
@@ -154,13 +197,76 @@ export default {
       const day = ('0' + today.getDate()).slice(-2)
 
       return year + '-' + month + '-' + day
+    },
+    afterCheckInDate () {
+      const checkIn = new Date(this.checkIn)
+      const year = checkIn.getFullYear()
+      const month = ('0' + (checkIn.getMonth() + 1)).slice(-2)
+      const day = Number(('0' + checkIn.getDate()).slice(-2)) + 1
+
+      return year + '-' + month + '-' + day
+    }
+  },
+  watch: {
+    checkOut () {
+      if (this.checkOut) {
+        this.currentTab = 2
+      }
+    },
+    coords () {
+      console.log(this.coords)
     }
   },
   mounted () {
     this.siList = si_list
     this.allGuList = gu_list
+    
   },
   methods: {
+    getDay(date) {
+      const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+      let i = new Date(date).getDay(date);
+      return daysOfWeek[i];
+    },
+    getMonth(date) {
+      const monthName = [
+        '1월',
+        '2월',
+        '3월',
+        '4월',
+        '5월',
+        '6월',
+        '7월',
+        '8월',
+        '9월',
+        '10월',
+        '11월',
+        '12월',
+      ];
+
+      let i = new Date(date).getMonth(date);
+      return monthName[i];
+    },
+    getHeaderTitleMonth(date) {
+      const monthName = [
+      "1월",
+      "2월",
+      "3월",
+      "4월",
+      "5월",
+      "6월",
+      "7월",
+      "8월",
+      "9월",
+      "10월",
+      "11월",
+      "12월",
+      ]
+      let i = new Date(date).getMonth(date)
+      const year = new Date(date).getFullYear(date)
+      const month = monthName[i]
+      return `${year}년 ${month}`
+    },
     selectSi (siCode) {
       this.guList = []
 
@@ -169,6 +275,19 @@ export default {
           this.guList.push(this.allGuList[i])         
         }
       }
+    },
+    selectGu (guName, lat, lng) {
+      this.selectArea = guName
+      this.currentTab = 1
+
+      this.$emit('selectGu', lat, lng)
+    },
+    search () {
+      api.get(`/camps/search?ne-lat=${this.coords.neLat}&ne-lng=${this.coords.neLng}&sw-lat=${this.coords.swLat}&sw-lng=${this.coords.swLng}
+        &query=캠핑&check-in=${this.checkIn}&check-out=${this.checkOut}&guests=1&start=0&page=0`).then(res => {
+        console.log(res.data)
+      })
+      this.menu = false
     }
   }
 }
@@ -203,6 +322,7 @@ export default {
   border-radius: 12px;
 }
 .tab {
+  height: 55px;
   background-color: #f2f2f2;
   border-radius: 50px !important;
   display: flex;
@@ -232,5 +352,23 @@ export default {
 .tab > button:focus {
   background-color: white;
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+.datePicker {
+  margin: auto;
+  margin-top: 20px;
+  display: flex;
+  
+  
+}
+.guest {
+  width: 300px;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+.guest-type {
+  display: flex;
+  height: 60px;
+  line-height: 60px;
 }
 </style>

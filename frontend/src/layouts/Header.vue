@@ -7,7 +7,7 @@
       </router-link>
       <div>
         <router-link :to="{ name: 'Home' }">전국캠핑장</router-link>
-        <router-link :to="{ name: 'Test' }">커뮤니티</router-link>
+        <router-link :to="{ name: 'Community' }">커뮤니티</router-link>
       </div>
       <div class="login">
         <router-link :to="{ name: 'Login' }" v-if="!isLogin">로그인</router-link>

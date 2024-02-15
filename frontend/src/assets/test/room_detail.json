@@ -1,0 +1,32 @@
+{
+  "checkIn": "2023-06-01",
+  "checkOut": "2023-06-03",
+  "camp": {
+    "id": 11,
+    "name": "맑은 캠핑장",
+    "images": [
+      "https://placeimg.com/500/200/animals",
+      "https://placeimg.com/500/400/animals"
+    ],
+    "address": "제주도 구좌읍 ###-25",
+    "contact": "010-7355-####",
+    "checkInTime": "15:00",
+    "checkOutTime": "10:00"
+  },
+  "room": {
+    "id": 31,
+    "name": "글램핑 A호",
+    "capacity": 2,
+    "images": [
+      "test3.jpg", "test1.jpg", "test2.jpg"
+    ],
+    "price": {
+      "minOneNightPrice": 45000,
+      "dailyPrice": [
+        45000,
+        55000
+      ],
+      "totalPrice": 12000
+    }
+  }
+}

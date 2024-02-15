@@ -86,7 +86,8 @@
     
     
     <div id="map" class="map">
-      <Search style="position: fixed; z-index: 1;"></Search>
+      <Search style="position: fixed; z-index: 1;"
+        @selectGu="selectGu" :coords="coords"></Search>
       <div v-if="showCampInfo" style="width:200px;height:200px;">
         {{campInfo.name}}
       </div>
@@ -106,6 +107,7 @@ import Search from '@/components/home/Search'
 import 'swiper/css/swiper.css'
 import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
 import CampDetail from '@/components/home/CampDetail'
+import api from '@/api'
 
 export default {
   components: {
@@ -147,7 +149,8 @@ export default {
         }
       },
       dialog: false,
-      campDetail: null
+      campDetail: null,
+      coords: {}
     }
   },
   computed: {
@@ -192,7 +195,17 @@ export default {
       this.swLat = southWest.lat()
       this.swLng = southWest.lng()
 
-      //console.log(this.neLat,this.neLng)
+      this.coords = { neLat: this.neLat, neLng: this.neLng, swLat: this.swLat, swLng: this.swLng}
+
+      console.log(this.neLat,this.neLng)
+
+      api.get(`/camps/search?ne-lat=${this.neLat}&ne-lng=${this.neLng}&sw-lat=${this.swLat}&sw-lng=${this.swLng}
+        &query=캠핑&check-in=2024-01-22&check-out=2024-02-14&guests=1&start=0&page=0`).then(res => {
+        console.log(res.data)
+      })
+      // api.get('camps/2').then(res => {
+      //   console.log(res.data)
+      // })
     })
 
     for (let i = 0; i < this.campList.length; i++) {
@@ -238,6 +251,10 @@ export default {
       // })
       this.campDetail = id
       this.dialog = true
+    },
+    selectGu (lat, lng) {
+      const center = new window.naver.maps.LatLng(lat, lng)
+      this.map.setCenter(center)
     }
   }
 }

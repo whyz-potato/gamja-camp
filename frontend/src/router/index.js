@@ -4,6 +4,7 @@ import Home from '@/views/Home'
 import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
+import Community from '@/views/Community'
 //import RoomDetail from '@/views/RoomDetail'
 import TestLoginKakao from '@/views/TestLoginKakao'
 import TestLoginGoogle from '@/views/TestLoginGoogle'
@@ -46,6 +47,11 @@ const routes = [
     path: '/join',
     name: 'Join',
     component: Join
+  },
+  {
+    path: '/community',
+    name: 'Community',
+    component: Community
   },
   // {
   //   path: '/roomDetail',

@@ -34,7 +34,7 @@
                   <v-list-item v-for="list in chatRoomList" :key="list.index" 
                     @click="getMessageList(list.roomId, list.title, list.lastMessage.id)">
                     <v-list-item-avatar>
-                      <img :src="list.lastMessage.from.picture">
+                      <img :src="list.picture">
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title>{{list.title}}
@@ -58,6 +58,8 @@
             <div class="pa-3">
               <div class="message-list" ref="chatRef" v-scroll.self="onScroll">
                 <div v-for="(list, index) in messageList" :key="index">
+                  <div class="message-date" v-if="sameDate(index)">{{list.date}}</div>
+                  <div v-if="isStacked && index==1">여기까지 읽었습니다.</div>
                   <div v-if="userId == list.from.id" class="my-message">
                     <p class="message-time" v-if="sameTime(null, index)" >
                       {{list.time.toString().slice(0,5)}}
@@ -157,12 +159,14 @@ export default {
       message: '',
       subMessageList: [],
       beforMessageList: [],
+      afterMessageList: [],
       showPrevMessage: false,
       beforScrollHeight: 0,
       bottom: false,
       recentMessageUserName: '',
       recentMessageContent: '',
-      recentMessageUserId: ''
+      recentMessageUserId: '',
+      isStacked: false
     }
   },
   watch: {
@@ -197,11 +201,16 @@ export default {
     },
     messageList () {
       this.$nextTick(() => {
-        if (this.messageList.length <= 10) {
+        if (this.messageList.length <= 10 && !this.isStacked) {
           this.$refs.chatRef.scrollTo({ top: this.$refs.chatRef.scrollHeight, behavior: 'smooth' })
           this.bottom = true
+          console.log('test-1')
+        } else if (this.messageList.length <= 10 && this.isStacked) {
+          //this.$refs.chatRef.scrollTo({ top: 5 })
+          console.log('test-2')
         } else {
           this.$refs.chatRef.scrollTop = this.$refs.chatRef.scrollHeight - this.beforScrollHeight
+          console.log('test-3')
         }
       })
     },
@@ -258,7 +267,9 @@ export default {
       this.sheet = 2
 
       api.get(`/chats/${this.roomId}`).then(res => {
-        //console.log(res.data.messages)
+        console.log(res.data)
+        console.log(res.data.messages)
+        this.isStacked = res.data.isStacked
         this.messageList = res.data.messages
       })
       api.post(`/chats/${this.roomId}/last-read/${messageId}`).then(()=> {
@@ -324,11 +335,17 @@ export default {
           id: this.userId,
           content: this.message,
         }
-        this.stompClient.send("/app/3", JSON.stringify(msg), {})
+        this.stompClient.send("/app/4", JSON.stringify(msg), {})
       }
 
       this.message = ''
-    }, 
+    },
+    sameDate (index) {
+      if (index == 0 && !this.isStacked) return true
+      else if(this.messageList[index].date != this.messageList[index].date) return true
+
+      return false
+    },
     sameTime (type, index) {
       let list = []
 
@@ -363,15 +380,16 @@ export default {
       const scrollHeight = e.target.scrollHeight
       const clientHeight = this.$refs.chatRef.clientHeight
       
-      //console.log('scrollTop', scrollTop, 'scrollHeight', scrollHeight, 'clientHeight', clientHeight )
+      console.log('scrollTop', scrollTop, 'scrollHeight', scrollHeight, 'clientHeight', clientHeight )
 
       if (scrollTop == 0) {
+        this.isStacked = false
         this.beforScrollHeight = scrollHeight
 
         const messageId = this.messageList[0].id
 
-        api.get(`/chats/${this.roomId}?start=${messageId}`).then(res => {
-          //console.log(res.data.messages)
+        api.get(`/chats/${this.roomId}?before=${messageId}`).then(res => {
+          console.log(res.data.messages)
           this.beforMessageList = res.data.messages
 
           if (this.beforMessageList.length != 0) {
@@ -384,6 +402,18 @@ export default {
         this.bottom = true
         this.recentMessageUserName = ''
         this.recentMessageContent = ''
+
+        const messageId = this.messageList[this.messageList.length - 1].id
+
+        api.get(`/chats/${this.roomId}?after=${messageId}`).then(res => {
+          console.log(res.data.messages)
+          this.afterMessageList = res.data.messages
+
+          if (this.afterMessageList.length != 0) {
+            this.messageList = this.messageList.concat(this.afterMessageList)           
+          }
+        })
+
       } else if(scrollTop + clientHeight < scrollHeight + 100) {
         this.bottom = false
       }
@@ -393,7 +423,7 @@ export default {
       this.$refs.chatRef.scrollTo({ top: this.$refs.chatRef.scrollHeight, behavior: 'smooth' })
     },
     makeSingleRoom () {
-      api.post('/chats/single', {to: 1}).then(res => {
+      api.post('/chats/single', {to: 2}).then(res => {
         console.log(res.data)
         this.roomTitle = res.data.title
         this.sheet = 2
@@ -426,6 +456,13 @@ export default {
   overflow: scroll;
   position: relative;
   z-index: 1;
+}
+.message-date {
+  text-align: center;
+  font-size: 14px;
+  margin: 10px;
+  margin-top: 30px;
+  color: grey;
 }
 .my-message {
   display: flex;

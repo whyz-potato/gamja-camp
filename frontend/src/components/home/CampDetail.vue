@@ -1,6 +1,22 @@
 <template>
   <v-card class="card pa-3">
-    <v-card-title>{{ campDetail.camp.name }}</v-card-title>
+    <!--
+    <v-toolbar flat>
+      <v-toolbar-title>{{ campDetail.camp.name }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn v-if="showRoomDetail" @click="showRoomDetail = false" icon>
+        <v-icon class="material-icons ml-2">arrow_back_ios</v-icon>
+      </v-btn>
+    </v-toolbar>
+    -->
+    <v-card-title>{{ campDetail.camp.name }}
+      <!--
+      <v-btn class="ml-auto" fab text>
+        <v-icon class="material-icons ml-2">arrow_back_ios</v-icon>
+      </v-btn>
+      -->
+    </v-card-title>
+
     <v-divider></v-divider>
 
     <v-hover v-slot="{ hover }">
@@ -44,7 +60,7 @@
     <div class="d-flex ml-6" >
       <div v-for="room in campRooms.rooms" :key="room.index">
         <v-hover  v-slot="{ hover }">
-          <v-card :elevation="hover ? 16 : 2"
+          <v-card :elevation="hover ? 16 : 2" @click="roomDetail(room.id)"
             class="card mr-5 d-flex" width="220">
             <img :src="require(`@/assets/test/${room.images}`)"
               class="room_image" style="width:100px;">
@@ -68,37 +84,6 @@
         {{ campDetail.camp.contact }}
       </div>
     </div>
-
-    <!--
-    <v-card-title class="mt-5">캠핑장 예약</v-card-title>
-    <div class="ml-6">
-      <div>
-        <v-chip class="mr-2" outlined>
-          <v-icon class="material-icons mr-2">calendar_month</v-icon> 
-          체크인 {{ campDetail.checkIn }}
-        </v-chip>
-        <v-chip class="mr-2" outlined>
-          <v-icon class="material-icons mr-2">calendar_month</v-icon> 
-          체크아웃 {{ campDetail.checkOut }}
-        </v-chip>
-        <v-chip class="mr-2" outlined>
-          <v-icon class="material-icons mr-2">face</v-icon> 
-          인원 {{ campDetail.guests }} 명
-        </v-chip>
-        <v-chip outlined>
-          <v-icon class="material-icons mr-2">monetization_on</v-icon> 
-          가격 {{ campDetail.price.totalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}원 / 2박
-        </v-chip>
-      </div>
-      
-      <div class="mt-2"> 
-        <v-btn rounded color="primary" dark>
-          <v-icon class="material-icons mr-2">east</v-icon>
-          예약하기
-        </v-btn>
-      </div>
-    </div>
-    -->
   </v-card>
 </template>
 
@@ -112,7 +97,7 @@ import camp_rooms from '@/assets/test/camp_rooms'
 export default {
   components: {
     // Swiper,
-    // SwiperSlide
+    // SwiperSlide,
   },
   props: {
     // campDetail: {
@@ -124,19 +109,19 @@ export default {
     return {
       campDetail: {},
       map: null,
-      campRooms: {}
+      campRooms: {},
     }
   },
-  watch: {
-    // dialog () {
-    //   console.log(this.dialog)
-    //   if (this.dialog) {
-    //     this.map = new window.naver.maps.Map('detail_map',{
-    //       zoom: 15
-    //     })
-    //   }
-    // }
-  },
+  // watch: {
+  //   dialog () {
+  //     console.log(this.dialog)
+  //     if (this.dialog) {
+  //       this.map = new window.naver.maps.Map('detail_map',{
+  //         zoom: 15
+  //       })
+  //     }
+  //   }
+  // },
   mounted () {
     this.campDetail = camp_detail
     this.campRooms = camp_rooms
@@ -155,6 +140,11 @@ export default {
         map: this.map,
         position: coord
       })
+    },
+    roomDetail (roomId) {
+      console.log(roomId)
+      const newWindow = this.$router.resolve({ name: 'RoomDetail', query: { 'id': roomId }})
+      window.open(newWindow.href, '_blank')
     }
   }
 }
