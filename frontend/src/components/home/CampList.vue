@@ -33,7 +33,7 @@
       </div>
       -->
 
-      <div class="camps_count">검색결과 {{ this.count }} 건</div>
+      <div class="camps_count" v-if="count">검색결과 {{ this.count }} 건</div>
 
       <div class="pa-3">
         <v-row>
@@ -46,7 +46,7 @@
 
                 <swiper class="swiper" :options="swiperOption">
                   <swiper-slide v-for="img in list.images" :key="img.index">
-                    <img :src="require(`@/assets/test/${img}`)" style="width:100%;">
+                    <img :src="img" style="width:100%;">
                   </swiper-slide>
                   <div class="swiper-pagination" slot="pagination"></div>
                   <div class="swiper-button-prev" slot="button-prev"></div>
@@ -72,7 +72,7 @@
 
                   <div class="camp_price">
                     <span>1박 / </span>
-                    <span class="price">{{ list.OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</span>
+                    <span class="price">{{ list.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</span>
                     <span> 원~</span>
                   </div>
                 </div>
@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import camp_list from '@/assets/test/camp_list'
+//import camp_list from '@/assets/test/camp_list'
 import si_list from '@/assets/data/si_list'
 import gu_list from '@/assets/data/gu_list'
 import Search from '@/components/home/Search'
@@ -169,8 +169,8 @@ export default {
     }
   },
   mounted () {
-    this.count = camp_list.count
-    this.campList = camp_list.camps
+    //this.count = camp_list.count
+    // this.campList = camp_list.camps
     this.siList = si_list
     this.guList = gu_list
 
@@ -187,41 +187,43 @@ export default {
     })
 
     new window.naver.maps.Event.addListener(this.map, 'idle', () => {
+      this.coords = {}
       const northEast = this.map.getBounds().getNE()
       const southWest = this.map.getBounds().getSW()
       
-      this.neLat = northEast.lat()
-      this.neLng = northEast.lng()
-      this.swLat = southWest.lat()
-      this.swLng = southWest.lng()
+      const neLat = northEast.lat()
+      const neLng = northEast.lng()
+      const swLat = southWest.lat()
+      const swLng = southWest.lng()
 
-      this.coords = { neLat: this.neLat, neLng: this.neLng, swLat: this.swLat, swLng: this.swLng}
+      this.coords = { neLat: neLat, neLng: neLng, swLat: swLat, swLng: swLng}
+      console.log(this.coords)
 
-      console.log(this.neLat,this.neLng)
-
-      api.get(`/camps/search?ne-lat=${this.neLat}&ne-lng=${this.neLng}&sw-lat=${this.swLat}&sw-lng=${this.swLng}
-        &query=캠핑&check-in=2024-01-22&check-out=2024-02-14&guests=1&start=0&page=0`).then(res => {
+      api.get(`/camps/search?ne-lat=${neLat}&ne-lng=${neLng}&sw-lat=${swLat}&sw-lng=${swLng}
+        &check-in=2024-02-23&check-out=2024-02-24&guests=1&start=0&page=0`).then(res => {
         console.log(res.data)
+        this.campList = res.data.content
+        this.count = res.data.numberOfElements
+
+        for (let i = 0; i < this.campList.length; i++) {
+          const coord = new window.naver.maps.LatLng(this.campList[i].latitude, this.campList[i].longitude)
+          const price = this.campList[i].price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+          const name = this.campList[i].name
+
+          const marker = new window.naver.maps.Marker({
+            map: this.map,
+            position: coord,
+            icon: { content: `<div class="marker">${price}</div>` },
+            title: name
+          })
+
+          this.markers.push(marker)
+        }
+        
       })
-      // api.get('camps/2').then(res => {
-      //   console.log(res.data)
-      // })
     })
 
-    for (let i = 0; i < this.campList.length; i++) {
-      const coord = new window.naver.maps.LatLng(this.campList[i].lat, this.campList[i].lng)
-      const price = this.campList[i].OneNightPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      const name = this.campList[i].name
-
-      const marker = new window.naver.maps.Marker({
-        map: this.map,
-        position: coord,
-        icon: { content: `<div class="marker">${price}</div>` },
-        title: name
-      })
-
-      this.markers.push(marker)
-    }
+    
     this.markerEvent()
   },
   methods: {
