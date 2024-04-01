@@ -8,6 +8,8 @@ import DateRangePicker from 'vue2-daterange-picker'
 import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 import 'material-icons/iconfont/material-icons.css'
 import VueCookies from 'vue-cookies'
+import VueDatepickerUi from 'vue-datepicker-ui'
+import 'vue-datepicker-ui/lib/vuedatepickerui.css'
 
 Vue.config.productionTip = false
 
@@ -15,6 +17,7 @@ Vue.use(VueGeolocation)
 Vue.use(DateRangePicker)
 Vue.use(VueCookies)
 Vue.$cookies.config('1d')
+Vue.component('Datepicker', VueDatepickerUi)
 
 window.Kakao.init('')
 
