@@ -118,7 +118,9 @@ public class GatherPostDto {
                         .map(Image::getPath)
                         .collect(Collectors.toList());
             }
-            this.chat = post.getChat().getId();
+            if(post.getChat() != null ) {
+                this.chat = post.getChat().getId();
+            }
         }
     }
 
