@@ -1,10 +1,10 @@
 package whyzpotato.gamjacamp.controller.dto;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+import whyzpotato.gamjacamp.controller.dto.WriterDto.WriterSimple;
 import whyzpotato.gamjacamp.domain.Image;
 import whyzpotato.gamjacamp.domain.chat.Chat;
 import whyzpotato.gamjacamp.domain.member.Member;
@@ -13,11 +13,12 @@ import whyzpotato.gamjacamp.domain.post.Post;
 import whyzpotato.gamjacamp.domain.post.PostType;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
 @NoArgsConstructor
 public class GatherPostDto {
 
@@ -26,34 +27,48 @@ public class GatherPostDto {
     @NoArgsConstructor
     public static class GatherPostSimple {
         private Long id;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private String title;
         private String content;
         private String image;
 
         @Builder
-        public GatherPostSimple(Long id, String title, String content, List<Image> images) {
+        public GatherPostSimple(Long id, Member writer, String title, String content, List<Image> images, LocalDate date, LocalTime time) {
             this.id = id;
+            this.writer = new WriterSimple(writer);
+            this.date = date;
+            this.time = time;
             this.title = title;
             this.content = content;
-            if (!images.isEmpty())
+            if (!images.isEmpty()) {
                 this.image = images.get(0).getPath();   //첫번째 사진
+            }
         }
 
         public GatherPostSimple(Post post) {
             this.id = post.getId();
+            this.writer = new WriterSimple(post.getWriter());
+            this.date = post.getCreatedTime().toLocalDate();
+            this.time = post.getCreatedTime().toLocalTime();
             this.title = post.getTitle();
             this.content = post.getContent();
-            if (!post.getImages().isEmpty())
+            if (!post.getImages().isEmpty()) {
                 this.image = post.getImages().get(0).getPath();   //첫번째 사진
+            }
         }
 
         public Page<GatherPostSimple> toList(Page<Post> posts) {
             Page<GatherPostSimple> gatherPostSimpleList = posts.map(
                     m -> GatherPostSimple.builder()
                             .id(m.getId())
+                            .writer(m.getWriter())
                             .title(m.getTitle())
                             .content(m.getContent())
                             .images(m.getImages())
+                            .date(m.getCreatedTime().toLocalDate())
+                            .time(m.getCreatedTime().toLocalTime())
                             .build());
             return gatherPostSimpleList;
         }
@@ -64,18 +79,21 @@ public class GatherPostDto {
     @NoArgsConstructor
     public static class GatherPostDetail {
         private Long id;
-        private String writer;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private String title;
         private String content;
-
         private PostType postType;
         private List<String> images;
         private Long chat;
 
         @Builder
-        public GatherPostDetail(Long id, Member writer, String title, String content, PostType postType, List<Image> images, Chat chat) {
+        public GatherPostDetail(Long id, Member writer, String title, String content, PostType postType, List<Image> images, Chat chat, LocalDate date, LocalTime time) {
             this.id = id;
-            this.writer = writer.getUsername();
+            this.writer = new WriterSimple(writer);
+            this.date = date;
+            this.time = time;
             this.title = title;
             this.content = content;
             this.postType = postType;
@@ -89,7 +107,9 @@ public class GatherPostDto {
 
         public GatherPostDetail(Post post) {
             this.id = post.getId();
-            this.writer = post.getWriter().getUsername();
+            this.writer = new WriterSimple(post.getWriter());
+            this.date = post.getCreatedTime().toLocalDate();
+            this.time = post.getCreatedTime().toLocalTime();
             this.title = post.getTitle();
             this.content = post.getContent();
             this.postType = post.getType();

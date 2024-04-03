@@ -1,18 +1,19 @@
 package whyzpotato.gamjacamp.controller.dto;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import whyzpotato.gamjacamp.controller.dto.WriterDto.WriterSimple;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.post.Comment;
 import whyzpotato.gamjacamp.domain.post.Post;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
 @NoArgsConstructor
 public class CommentDto {
 
@@ -20,10 +21,16 @@ public class CommentDto {
     @NoArgsConstructor
     public static class CommentSimple {
         private Long id;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private String content;
 
-        public CommentSimple(Comment comment) {
+        public CommentSimple(Comment comment, Member writer) {
             this.id = comment.getId();
+            this.writer = new WriterSimple(writer);
+            this.date = comment.getCreatedTime().toLocalDate();
+            this.time = comment.getCreatedTime().toLocalTime();
             this.content = comment.getContent();
         }
     }
@@ -32,21 +39,27 @@ public class CommentDto {
     @NoArgsConstructor
     public static class CommentInfo {
         private Long id;
-        private String writer;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private String content;
         private List<CommentInfo> lowerComments;
 
         @Builder
-        public CommentInfo(Long id, String writer, String content, List<CommentInfo> lowerComments) {
+        public CommentInfo(Long id, Member writer, String content, List<CommentInfo> lowerComments, LocalDate date, LocalTime time) {
             this.id = id;
-            this.writer = writer;
+            this.writer = new WriterSimple(writer);
+            this.date = date;
+            this.time = time;
             this.content = content;
             this.lowerComments = lowerComments;
         }
 
         public CommentInfo(Comment comment) {
             this.id = comment.getId();
-            this.writer = comment.getWriter().getUsername();
+            this.writer = new WriterSimple(comment.getWriter());
+            this.date = comment.getCreatedTime().toLocalDate();
+            this.time = comment.getCreatedTime().toLocalTime();
             this.content = comment.getContent();
             if(!comment.getLowerComments().isEmpty()) {
                 this.lowerComments = comment.getLowerComments().stream()
@@ -62,27 +75,31 @@ public class CommentDto {
     public static class CommentDetail {
         private Long id;
         private Long post;
-        private Long writer;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private Long upperComment;
         private List<CommentDetail> lowerComments;
         private String content;
-        private String deleteYn;
 
         @Builder
-        public CommentDetail(Long id, Long postId, Long memberId, Long upperCommentId, List<CommentDetail> lowerComments, String content, String deleteYn) {
+        public CommentDetail(Long id, Long postId, Member writer, Long upperCommentId, List<CommentDetail> lowerComments, String content,  LocalDate date, LocalTime time) {
             this.id = id;
             this.post = postId;
-            this.writer = memberId;
+            this.writer = new WriterSimple(writer);
+            this.date = date;
+            this.time = time;
             this.upperComment = upperCommentId;
             this.lowerComments = lowerComments;
             this.content = content;
-            this.deleteYn = deleteYn;
         }
 
         public CommentDetail(Comment comment) {
             this.id = comment.getId();
             this.post = comment.getPost().getId();
-            this.writer = comment.getWriter().getId();
+            this.writer = new WriterSimple(comment.getWriter());
+            this.date = comment.getCreatedTime().toLocalDate();
+            this.time = comment.getCreatedTime().toLocalTime();
             if(comment.getUpperComment() != null) {
                 this.upperComment = comment.getUpperComment().getId();
             }
@@ -92,7 +109,6 @@ public class CommentDto {
                         .collect(Collectors.toList());
             }
             this.content = comment.getContent();
-            this.deleteYn = comment.getDeleteYn();
         }
 
         public List<CommentDetail> toList(List<Comment> comments) {
