@@ -124,7 +124,7 @@ export default {
       swLat: null,
       swLng: null,
       count: null,
-      campList: null,
+      campList: [],
       campInfo: null,
       showCampInfo: false,
       markers: [],
@@ -196,14 +196,16 @@ export default {
       const swLat = southWest.lat()
       const swLng = southWest.lng()
 
-      this.coords = { neLat: neLat, neLng: neLng, swLat: swLat, swLng: swLng}
+      this.coords = { neLat: neLat, neLng: neLng, swLat: swLat, swLng: swLng }
       console.log(this.coords)
 
-      api.get(`/camps/search?ne-lat=${neLat}&ne-lng=${neLng}&sw-lat=${swLat}&sw-lng=${swLng}
-        &check-in=2024-02-23&check-out=2024-02-24&guests=1&start=0&page=0`).then(res => {
+      //this.campList = []
+      api.get(`/camps/search?ne-lat=${neLat}&ne-lng=${neLng}&sw-lat=${swLat}&sw-lng=${swLng}`).then(res => {
         console.log(res.data)
         this.campList = res.data.content
         this.count = res.data.numberOfElements
+
+        this.markers = []
 
         for (let i = 0; i < this.campList.length; i++) {
           const coord = new window.naver.maps.LatLng(this.campList[i].latitude, this.campList[i].longitude)
@@ -223,7 +225,6 @@ export default {
       })
     })
 
-    
     this.markerEvent()
   },
   methods: {
@@ -248,10 +249,11 @@ export default {
       this.showCampInfo = true
     },
     viewCamp (id) {
-      // api.get(`/camps/${id}`).then(res => {
-      //   this.campDetail = res.data
-      // })
-      this.campDetail = id
+      api.get(`/camps/${id}`).then(res => {
+        this.campDetail = res.data
+        console.log(res.data)
+      })
+      //this.campDetail = id
       this.dialog = true
     },
     selectGu (lat, lng) {

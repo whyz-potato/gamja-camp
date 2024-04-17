@@ -1,18 +1,20 @@
 <template>
   <div class="sheet">
-    <post-register-form></post-register-form>
+    <post-update-form></post-update-form>
   </div>
 </template>
 
+
 <script>
-import PostRegisterForm from '@/components/commuity/PostRegisterForm'
+import PostUpdateForm from '@/components/commuity/PostUpdateForm'
 
 export default {
   components: {
-    PostRegisterForm
+    PostUpdateForm
   }
 }
 </script>
+
 
 <style scoped>
 .sheet {

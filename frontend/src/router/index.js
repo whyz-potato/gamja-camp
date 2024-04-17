@@ -7,6 +7,7 @@ import Join from '@/views/member/Join'
 import Community from '@/views/community/Community'
 import PostRegister from '@/views/community/PostRegister'
 import PostDetail from '@/views/community/PostDetail'
+import PostUpdate from '@/views/community/PostUpdate'
 import RoomDetail from '@/views/RoomDetail'
 import TestLoginKakao from '@/views/TestLoginKakao'
 import TestLoginGoogle from '@/views/TestLoginGoogle'
@@ -64,6 +65,11 @@ const routes = [
     path: '/postDetail',
     name: 'PostDetail',
     component: PostDetail
+  },
+  {
+    path: '/postUpdate',
+    name: 'PostUpdate',
+    component: PostUpdate
   },
   {
     path: '/roomDetail',

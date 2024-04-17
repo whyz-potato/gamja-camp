@@ -9,7 +9,7 @@
       </v-btn>
     </v-toolbar>
     -->
-    <v-card-title>{{ campDetail.camp.name }}
+    <v-card-title>{{ campDetail.name }}
       <!--
       <v-btn class="ml-auto" fab text>
         <v-icon class="material-icons ml-2">arrow_back_ios</v-icon>
@@ -19,50 +19,56 @@
 
     <v-divider></v-divider>
 
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ hover }" v-if="campDetail.images">
       <v-card class="d-flex pa-2" flat>
         <div class="ma-1 mb-5" style="width:50%;">
-          <img :src="require(`@/assets/test/${campDetail.camp.images[0]}`)" 
+          <img :src="require(`@/assets/test/${campDetail.images[0]}`)" 
             class="img_radius1" style="width:100%; height: 100%;">
         </div>
         <div class="ma-1" style="width:25%;">
-          <img :src="require(`@/assets/test/${campDetail.camp.images[1]}`)"
+          <img :src="require(`@/assets/test/${campDetail.images[1]}`)"
             style="width:100%;">
-          <img :src="require(`@/assets/test/${campDetail.camp.images[2]}`)" 
+          <img :src="require(`@/assets/test/${campDetail.images[2]}`)" 
             style="width:100%;">
         </div>
         <div class="ma-1" style="width:25%;">
-          <img :src="require(`@/assets/test/${campDetail.camp.images[3]}`)"
+          <img :src="require(`@/assets/test/${campDetail.images[3]}`)"
             class="img_radius2" style="width:100%;">
-          <img :src="require(`@/assets/test/${campDetail.camp.images[4]}`)"
+          <img :src="require(`@/assets/test/${campDetail.images[4]}`)"
             class="img_radius3" style="width:100%;">
         </div>
 
         <button v-if="hover">사진 더보기</button>
       </v-card>
     </v-hover>
+
+    <v-card v-else>
+      이미지 없음
+    </v-card>
     
 
     <v-card-title class="mt-3">캠핑장 정보</v-card-title>
-    <div class="ml-6"> {{ campDetail.camp.introduction }} </div>
+    <div class="ml-6"> {{ campDetail.introduction }} </div>
     <div class="ml-6 mt-3">
       <v-chip class="mr-2" outlined>
         <v-icon class="material-icons mr-2">alarm</v-icon> 
-        체크인 {{ campDetail.camp.checkInTime }}
+        체크인 {{ campDetail.checkInTime }}
       </v-chip>
       <v-chip outlined>
         <v-icon class="material-icons mr-2">alarm</v-icon> 
-        체크아웃 {{ campDetail.camp.checkOutTime }}
+        체크아웃 {{ campDetail.checkOutTime }}
       </v-chip>
     </div>
 
     <v-card-title class="mt-7">캠핑장 객실</v-card-title>
     <div class="d-flex ml-6" >
-      <div v-for="room in campRooms.rooms" :key="room.index">
+      <div v-for="room in campRooms" :key="room.index">
         <v-hover  v-slot="{ hover }">
           <v-card :elevation="hover ? 16 : 2" @click="roomDetail(room.id)"
             class="card mr-5 d-flex" width="220">
-            <img :src="require(`@/assets/test/${room.images}`)"
+            <img v-if="room.images" :src="require(`@/assets/test/${room.images}`)"
+              class="room_image" style="width:100px;">
+            <img v-else :src="require(`@/assets/test/test1.jpg`)"
               class="room_image" style="width:100px;">
             <div>
               <v-card-subtitle>{{ room.name }}</v-card-subtitle>
@@ -79,9 +85,9 @@
       <div id="detail_map" class="detail_map" style="height: 300px; width: 400px"></div>
       <div class="ml-5">
         주소 <br>
-        {{ campDetail.camp.address }} <br><br>
+        {{ campDetail.address }} <br><br>
         전화번호 <br>
-        {{ campDetail.camp.contact }}
+        {{ campDetail.contact }}
       </div>
     </div>
   </v-card>
@@ -91,8 +97,9 @@
 <script>
 // import 'swiper/css/swiper.css'
 // import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
-import camp_detail from '@/assets/test/camp_detail'
-import camp_rooms from '@/assets/test/camp_rooms'
+//import camp_detail from '@/assets/test/camp_detail'
+//import camp_rooms from '@/assets/test/camp_rooms'
+import api from '@/api'
 
 export default {
   components: {
@@ -100,37 +107,38 @@ export default {
     // SwiperSlide,
   },
   props: {
-    // campDetail: {
+    campDetail: {
 
-    // },
+    },
     // dialog: Boolean
   },
   data () {
     return {
-      campDetail: {},
+      //campDetail: {},
       map: null,
-      campRooms: {},
+      campRooms: [],
     }
   },
-  // watch: {
-  //   dialog () {
-  //     console.log(this.dialog)
-  //     if (this.dialog) {
-  //       this.map = new window.naver.maps.Map('detail_map',{
-  //         zoom: 15
-  //       })
-  //     }
-  //   }
-  // },
+  watch: {
+    campDetail () {
+      console.log(this.campDetail.id)
+      api.get(`/rooms?camp=${this.campDetail.id}`).then(res => {
+        console.log(res.data)
+        this.campRooms = res.data.rooms
+      })
+    }
+  },
   mounted () {
-    this.campDetail = camp_detail
-    this.campRooms = camp_rooms
+    //this.campDetail = camp_detail
+    //this.campRooms = camp_rooms
     setTimeout(() => 
       this.initMap(), 500)
+    //console.log(this.campDetail)
+    
   },
   methods: {
     initMap () {
-      const coord = new window.naver.maps.LatLng(this.campDetail.camp.latitude, this.campDetail.camp.longitude)
+      const coord = new window.naver.maps.LatLng(this.campDetail.latitude, this.campDetail.longitude)
       this.map = new window.naver.maps.Map('detail_map',{
         center: coord,
         zoom: 13

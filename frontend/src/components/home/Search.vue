@@ -136,7 +136,7 @@ export default {
       guList: [],
       checkIn: null,
       checkOut: null,
-      adult: 1,
+      adult: 2,
       kids: 0,
       personnel: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
       checkInMenu: false,
@@ -232,6 +232,8 @@ export default {
     },
     search () {
       const guests = this.adult + this.kids
+      
+      if(!this.checkIn) this.checkIn = this.today, this.checkOut = this.afterCheckInDate
 
       api.get(`/camps/search?ne-lat=${this.coords.neLat}&ne-lng=${this.coords.neLng}
         &sw-lat=${this.coords.swLat}&sw-lng=${this.coords.swLng}&query=${this.searchWord}

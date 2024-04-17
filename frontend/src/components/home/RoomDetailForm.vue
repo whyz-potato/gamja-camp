@@ -1,11 +1,12 @@
 <template>
-  <div class="pa-3">
+  <v-card flat>
     <v-card-title>{{ roomDetail.camp.name }} {{ '>' }}
        {{ roomDetail.room.name}}</v-card-title>
 
     <v-divider></v-divider>
 
-    <!--
+    <v-card-title class="mt-3">객실 사진</v-card-title>
+
     <swiper class="swiper" :options="swiperOption">
       <swiper-slide v-for="img in roomDetail.room.images" :key="img.index">
         <img :src="require(`@/assets/test/${img}`)" style="width:100%;">
@@ -14,7 +15,7 @@
       <div class="swiper-button-prev" slot="button-prev"></div>
       <div class="swiper-button-next" slot="button-next"></div>
     </swiper>
-    -->
+   
 
     <v-card-title class="mt-3">객실 예약</v-card-title>
 
@@ -38,18 +39,24 @@
       <v-divider></v-divider>
       <div class="d-flex">
         <div>
-          기본요금 <br>
-          {{ roomDetail.checkIn }}
+          기본요금
+          <div>
+            {{ roomDetail.checkIn }}
+          </div>
+          <div>
+            2023-06-02
+          </div>
+          
         </div>
         <div class="price">
           {{ roomDetail.room.price.minOneNightPrice }}원
           <div v-for="price in roomDetail.room.price.dailyPrice" :key="price.index">
             {{ price }}원
           </div>
-        </div>
-        
-        
+        </div> 
       </div>
+      <v-divider></v-divider>
+      총금액  {{ roomDetail.room.price.totalPrice }}
     </v-card>
    
     <div class="ml-3 mt-3">
@@ -63,22 +70,30 @@
       </v-chip>
     </div>
 
-  </div>
+    
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn @click="reservation" large>예약하기</v-btn>
+      <v-btn @click="checkReservation" large>예약확인</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 
 <script>
 import room_detail from '@/assets/test/room_detail'
 import 'swiper/css/swiper.css'
-// import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+import api from '@/api'
 
 export default {
   components: {
-    // Swiper,
-    // SwiperSlide,
+    Swiper,
+    SwiperSlide,
   },
   data () {
     return {
+      token: null,
       roomDetail: {},
       swiperOption: {
         loop: true,
@@ -97,14 +112,47 @@ export default {
     }
   },
   mounted () {
+    api.get('/chats/csrf').then(res => {
+      this.token = res.data.token
+    })
+
     this.roomDetail = room_detail
     const checkInDate = new Date(this.roomDetail.checkIn)
     const checkOutDate = new Date(this.roomDetail.checkOut)
     console.log((checkOutDate - checkInDate)/(1000 * 60 * 60 * 24))
     
     this.dates.push(checkInDate.toLocaleDateString())
-    console.log(this.dates)
+    //console.log(this.dates)
+
+    // api.get(`/rooms/2?check-in=2024-03-11&check-out=2024-03-12&guests=2`).then(res => {
+    //   console.log(res.data)
+    // })
   },
+  methods: {
+    reservation () {
+      const test = {
+        "campId":2,
+        "roomId":11,
+        "checkIn":"2024-02-05",
+        "checkOut":"2024-02-06",
+        "guest":{"id":1,"name":"customer","email":"a"},
+        "reservation":{"numGuest":2,"dailyPrice":[15000]}
+      }
+
+      api.post('/customer/reservations', test, {
+        headers: {
+          'X-XSRF-TOKEN': this.token,
+        }
+      }).then(() => {
+        console.log('예약완료')
+      })
+    },
+    checkReservation () {
+      api.get(`/customer/reservations/my`).then(res => {
+        console.log(res.data)
+      })
+    }
+  }
   
 }
 </script>
@@ -114,8 +162,9 @@ export default {
 .swiper {
   /* width: 230px;
   height: 200px; */
-  width: 90%;
-  margin-top: 50px;
+  width: 70%;
+  margin-top: 20px;
+  margin-bottom: 40px;
 }
 .swiper-container {
   --swiper-theme-color: #e4dabc;

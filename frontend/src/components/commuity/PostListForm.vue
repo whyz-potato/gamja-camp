@@ -2,33 +2,34 @@
   <div>
     <div class="post">
       <div class="search">
-        <v-text-field placeholder="검색" filled rounded color="black" full-width></v-text-field>
+        <v-text-field v-model="searchWord" placeholder="검색" filled rounded 
+          color="black" full-width @keyup.enter="search"></v-text-field>
         <v-btn @click="search">검색</v-btn>
       </div>
       <div>
         <v-btn @click="post">등록</v-btn>
-        <v-btn @click="postUpdate">수정</v-btn>
-        <v-btn @click="postDelete">삭제</v-btn>
-        <v-btn @click="getPostList">조회</v-btn>
-        <v-btn @click="test">예약</v-btn>
+        <!-- <v-btn @click="test">예약</v-btn> -->
       </div>
-      <div>
-        <v-list>
-          <v-list-item-group>
-            <v-list-item v-for="list in postList" :key="list.index"
-               @click="postDetail(list.id)">
-              <div class="d-flex">
-                <v-img :src="list.image" width="30"></v-img>
-                <v-list-item-content>
-                  <v-list-item-title>{{list.title}}</v-list-item-title>
-                  <v-list-item-subtitle>{{list.content}}</v-list-item-subtitle>
-                </v-list-item-content>
+      <div class="ma-10">
+        <v-list v-for="list in postList" :key="list.index">
+          <v-list-item
+              @click="postDetail(list.id)">
+            <div class="d-flex">
+              <div class="img-wrapper mr-10">
+                <img v-if="list.image" :src="list.image">
+                <div v-else class="grey lighten-5"></div>
               </div>
               
-            </v-list-item>
-          </v-list-item-group>
-          
-          
+              <v-list-item-content>
+                <v-list-item-title>{{list.title}}</v-list-item-title>
+                <v-list-item-subtitle class="list-content mt-2">{{list.content}}</v-list-item-subtitle>
+                <v-list-item-subtitle class="caption mt-4">
+                  {{list.writer.username}} &#183; {{list.date}} &#183; {{list.time.toString().slice(0,5)}}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </div>
+            
+          </v-list-item>
         </v-list>
       </div>
     </div>
@@ -47,89 +48,28 @@ export default {
       postList: [],
       files: [],
       urls: [],
+      searchWord: null
     }
   },
   mounted () {
     api.get('/chats/csrf').then(res => {
       this.token = res.data.token
     })
-    api.get(`/post/general/list?lastPostId=30`).then(res => {
+    api.get(`/post/general/list?lastPostId=100`).then(res => {
       this.postList = res.data
+      console.log(this.postList)
     })
 
   },
   methods: {
     search () {
-      api.get('/post/general/search?lastPostId=100&keyword=test').then(res => {
-      console.log(res.data)
-    })
+      api.get(`/post/general/search?lastPostId=100&keyword=${this.searchWord}`).then(res => {
+        console.log(res.data)
+        this.postList = res.data
+      })
     },
-    selectImg () {
-			try {
-				this.urls = []
-
-				for (let i = 0; i < this.files.length; i++) {
-					this.urls.push(URL.createObjectURL(this.files[i]))
-				}
-
-			}catch(e) {
-				this.urls = []
-			}
-		},
-    // post () {
-      
-    //   let frm = new FormData()
-
-    //   const obj = { title: "test title", content: "test content" }; 
-    //   const json = JSON.stringify(obj); 
-    //   const blob = new Blob([json], { type: 'application/json' });
-    //   frm.append('request', blob)
-
-    //   for (let i = 0; i < this.files.length; i++) {
-		// 		frm.append('images', this.files[i])
-    //     console.log(this.files[i])
-		// 	}
-
-
-    //   api.post(`/post/general/new`, frm, { 
-    //     headers: {
-    //       'X-XSRF-TOKEN': this.token,
-    //       'Content-Type': 'multipart/form-data',
-    //       accept: 'application/json'
-    //     }
-    //   }).then(res => {
-    //     console.log(res.data)
-    //   })
-    // },
     post () {
       this.$router.push({ name: 'PostRegister' })
-    },
-    postUpdate () {
-      let frm = new FormData()
-
-      const obj = { title: "update title", content: "update content" }; 
-      const json = JSON.stringify(obj); 
-      const blob = new Blob([json], { type: 'application/json' });
-      frm.append('request', blob)
-
-      api.put(`/post/general/update/2`, frm, { 
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          accept: 'application/json'
-        }
-      }).then(res => {
-        console.log(res.data)
-      })
-    },
-    postDelete () {
-      api.delete(`/post/general/delete/2`).then(() => {
-        console.log('삭제 완료')
-      })
-    }, 
-    getPostList () {
-      api.get(`/post/general/list?lastPostId=20`).then(res => {
-        console.log(res.data)
-      })
     },
     postDetail (postId) {
       // api.get(`/post/general/${postId}`).then(res => {
@@ -168,9 +108,34 @@ export default {
   display: flex;
 }
 .post {
-  height: 1000px;
+  min-height: 1000px;
   margin: auto;
   margin-top: 50px;
-
+}
+.img-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+.img-wrapper img{
+  /* position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(50, 50); */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin: auto;
+}
+.img-wrapper div {
+  width: 100%;
+  height: 100%;
+}
+.list-content {
+  width: 100px;
+  overflow: hidden; 
+  text-overflow: ellipsis;  
+  white-space: nowrap; 	
+  word-break:break-all
 }
 </style>

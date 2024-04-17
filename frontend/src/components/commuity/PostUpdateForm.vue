@@ -2,7 +2,7 @@
   <div>
     <v-card flat>
       <v-card class="d-flex" flat>
-        <v-card-title>게시글 등록</v-card-title>
+        <v-card-title>게시글 수정</v-card-title>
         <v-btn @click="postRegister">등록</v-btn>
       </v-card>
       
@@ -30,15 +30,27 @@ export default {
   data () {
     return {
       token: null,
+      post: {},
+      postId: null,
       title: '',
       content: '',
       files: [],
-      urls: []
+      urls: [],
+      
     }
   },
   mounted () {
     api.get('/chats/csrf').then(res => {
       this.token = res.data.token
+    })
+
+    this.postId = this.$route.query.postId
+
+    api.get(`/post/general/${this.postId}`).then(res => {
+      console.log(res.data)
+      this.post = res.data
+      this.title = res.data.title
+      this.content = res.data.content
     })
 
   },
@@ -68,15 +80,14 @@ export default {
         console.log(this.files[i])
 			}
 
-      api.post(`/post/general/new`, frm, { 
+      api.put(`/post/general/update/${this.postId}`, frm, { 
         headers: {
-          'X-XSRF-TOKEN': this.token,
           'Content-Type': 'multipart/form-data',
           accept: 'application/json'
         }
       }).then(() => {
-        console.log('게시글등록완')
-        this.$router.push({ name: 'Community' })
+        console.log('게시글수정완')
+        this.$router.push({ name: 'PostDetail', query: { 'postId': this.postId }})
       })
     }
   }
