@@ -75,7 +75,7 @@ export default {
       // api.get(`/post/general/${postId}`).then(res => {
       //   console.log(res.data)
       // })
-      this.$router.push({ name: 'PostDetail', query: { 'postId': postId }})
+      this.$router.push({ name: 'GeneralDetail', query: { 'postId': postId }})
     },
     test () {
       let test = {

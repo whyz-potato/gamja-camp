@@ -87,7 +87,7 @@ export default {
         }
       }).then(() => {
         console.log('게시글수정완')
-        this.$router.push({ name: 'PostDetail', query: { 'postId': this.postId }})
+        this.$router.push({ name: 'GeneralDetail', query: { 'postId': this.postId }})
       })
     }
   }

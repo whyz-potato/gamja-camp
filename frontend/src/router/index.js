@@ -5,9 +5,12 @@ import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
 import Community from '@/views/community/Community'
-import PostRegister from '@/views/community/PostRegister'
-import PostDetail from '@/views/community/PostDetail'
-import PostUpdate from '@/views/community/PostUpdate'
+import GeneralRegister from '@/views/community/GeneralRegister'
+import GeneralDetail from '@/views/community/GeneralDetail'
+import GeneralUpdate from '@/views/community/GeneralUpdate'
+import GatherRegister from '@/views/community/GatherRegister'
+import GatherDetail from '@/views/community/GatherDetail'
+import GatherUpdate from '@/views/community/GatherUpdate'
 import RoomDetail from '@/views/RoomDetail'
 import TestLoginKakao from '@/views/TestLoginKakao'
 import TestLoginGoogle from '@/views/TestLoginGoogle'
@@ -57,19 +60,34 @@ const routes = [
     component: Community
   },
   {
-    path: '/postRegister',
-    name: 'PostRegister',
-    component: PostRegister
+    path: '/generalRegister',
+    name: 'GeneralRegister',
+    component: GeneralRegister
   },
   {
-    path: '/postDetail',
-    name: 'PostDetail',
-    component: PostDetail
+    path: '/generalDetail',
+    name: 'GeneralDetail',
+    component: GeneralDetail
   },
   {
-    path: '/postUpdate',
-    name: 'PostUpdate',
-    component: PostUpdate
+    path: '/generalUpdate',
+    name: 'GeneralUpdate',
+    component: GeneralUpdate
+  },
+  {
+    path: '/gatherRegister',
+    name: 'GatherRegister',
+    component: GatherRegister
+  },
+  {
+    path: '/gatherDetail',
+    name: 'GatherDetail',
+    component: GatherDetail
+  },
+  {
+    path: '/gatherUpdate',
+    name: 'GatherUpdate',
+    component: GatherUpdate
   },
   {
     path: '/roomDetail',

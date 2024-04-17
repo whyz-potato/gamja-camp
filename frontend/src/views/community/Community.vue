@@ -4,7 +4,7 @@
       <ul>
         <li class="tab">
           <input type="radio" id="tab1" name="tab"
-            v-model="tabValue" value="PostListForm" checked>
+            v-model="tabValue" value="GeneralListForm" checked>
           <label for="tab1">자유게시판</label>
         </li>
         <li class="tab">
@@ -21,17 +21,17 @@
 
 
 <script>
-import PostListForm from '@/components/commuity/PostListForm'
+import GeneralListForm from '@/components/commuity/GeneralListForm'
 import GatherListForm from '@/components/commuity/GatherListForm'
 
 export default {
   components: {
-    PostListForm,
+    GeneralListForm,
     GatherListForm
   },
   data () {
     return {
-      tabValue: 'PostListForm'
+      tabValue: 'GeneralListForm'
     }
   },
   watch: {

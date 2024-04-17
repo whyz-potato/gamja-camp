@@ -108,9 +108,8 @@ export default {
       newComment: null,
       comment: null,
       comments: [],
-      inputLabel: '댓글쓰기',
       commentId: null,
-      bottom: true,
+      //bottom: true,
       isReply: false
     }
   },

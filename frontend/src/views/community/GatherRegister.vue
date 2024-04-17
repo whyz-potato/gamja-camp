@@ -1,16 +1,16 @@
 <template>
   <div class="sheet">
-    <post-update-form></post-update-form>
+    <gather-register-form></gather-register-form>
   </div>
 </template>
 
 
 <script>
-import PostUpdateForm from '@/components/commuity/PostUpdateForm'
+import GatherRegisterForm from '@/components/commuity/GatherRegisterForm'
 
 export default {
   components: {
-    PostUpdateForm
+    GatherRegisterForm
   }
 }
 </script>
@@ -28,4 +28,5 @@ export default {
   border: 1px solid #dddddd;
 
 }
+
 </style>

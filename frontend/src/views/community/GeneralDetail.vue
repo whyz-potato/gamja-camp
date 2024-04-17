@@ -1,16 +1,16 @@
 <template>
   <div class="sheet">
-    <post-detail-form></post-detail-form>
+    <general-detail-form></general-detail-form>
   </div>
 </template>
 
 
 <script>
-import PostDetailForm from '@/components/commuity/PostDetailForm'
+import GeneralDetailForm from '@/components/commuity/GeneralDetailForm'
 
 export default {
   components: { 
-    PostDetailForm 
+    GeneralDetailForm 
   },
   data () {
     return {
