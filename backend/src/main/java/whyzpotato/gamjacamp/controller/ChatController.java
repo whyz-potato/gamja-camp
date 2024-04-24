@@ -17,6 +17,7 @@ import whyzpotato.gamjacamp.config.auth.LoginMember;
 import whyzpotato.gamjacamp.config.auth.dto.SessionMember;
 import whyzpotato.gamjacamp.controller.dto.ChatDto.PrivateChatRequest;
 import whyzpotato.gamjacamp.controller.dto.ChatDto.PublicChatRequest;
+import whyzpotato.gamjacamp.controller.dto.ChatDto.SimpleChatResponse;
 import whyzpotato.gamjacamp.controller.dto.ChatMemberDto.EnteredChat;
 import whyzpotato.gamjacamp.controller.dto.ChatMessageDto.DetailMessageDto;
 import whyzpotato.gamjacamp.controller.dto.ChatMessageDto.MessageDto;
@@ -38,7 +39,6 @@ import java.util.Map;
 @RequestMapping("/chats")
 @RestController
 public class ChatController {
-
     private final ChatService chatService;
     private final ChatMemberService chatMemberService;
     private final MessageService messageService;
@@ -48,6 +48,11 @@ public class ChatController {
         CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         log.debug("csrf token : {}", csrf.getToken().toString());
         return csrf;
+    }
+
+    @GetMapping("/group/{postId}")
+    public ResponseEntity<SimpleChatResponse> findPublicChat(@PathVariable Long postId) {
+        return ResponseEntity.ok(chatService.findByPost(postId));
     }
 
     @PostMapping("/single")
@@ -144,9 +149,7 @@ public class ChatController {
         //방장이 아니면 바로 나갈 수 있으며 채팅방에 영향을 끼치지 않는다.
         chatMemberService.removeChatMember(roomId, member.getId());
         return ResponseEntity.noContent().build();
-
     }
-
 
     @DeleteMapping("/{roomId}")
     public ResponseEntity<?> removeChat(@LoginMember SessionMember member,
@@ -160,14 +163,12 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/num-unread")
     public ResponseEntity<?> countUnreadMessages(@LoginMember SessionMember member) {
         return ResponseEntity.ok(new HashMap<String, Object>() {{
             put("numUnread", chatMemberService.countUnreadMessages(member.getId()));
         }});
     }
-
 
     @GetMapping("/test")
     public ResponseEntity<?> uriBuilderTest() {
@@ -178,5 +179,4 @@ public class ChatController {
 
         return ResponseEntity.ok().build();
     }
-
 }

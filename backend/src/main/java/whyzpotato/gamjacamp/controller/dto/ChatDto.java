@@ -80,5 +80,15 @@ public class ChatDto {
 
     }
 
+    @Getter
+    @NoArgsConstructor
+    public static class SimpleChatResponse{
+        private Long roomId;
+        private int capacity;
 
+        public SimpleChatResponse(Chat chat){
+            this.roomId = chat.getId();
+            this.capacity = chat.getCapacity();
+        }
+    }
 }

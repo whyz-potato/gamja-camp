@@ -11,10 +11,12 @@ import whyzpotato.gamjacamp.domain.chat.Chat;
 import whyzpotato.gamjacamp.domain.chat.Message;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.member.Role;
+import whyzpotato.gamjacamp.domain.post.Post;
 import whyzpotato.gamjacamp.repository.ChatMemberRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,16 +36,19 @@ class ChatMemberServiceTest {
     private Member newParticipant;
     private Member outsider;
     private Chat chat;
+    private Post post;
 
     @BeforeEach
     void setUp() {
         host = new Member("a", "host", "p", Role.CUSTOMER);
         newParticipant = new Member("a", "newParticipant", "p", Role.CUSTOMER);
         outsider = new Member("a", "outsider", "p", Role.CUSTOMER);
-        chat = Chat.createPublicChat(host, "chat1", 2);
+        post = Post.builder().writer(host).title("title").content("content").images(new ArrayList<>()).build();
+        chat = Chat.createPublicChat(host, "chat1", 2, post);
         em.persist(host);
         em.persist(newParticipant);
         em.persist(outsider);
+        em.persist(post);
         em.persist(chat);
     }
 
@@ -54,7 +59,6 @@ class ChatMemberServiceTest {
 
     @Test
     void isEnteredChat() {
-
         chat.enter(newParticipant);
 
         assertThat(chatMemberService.isEnteredChat(chat.getId(), host.getId())).isEqualTo(true);
@@ -64,7 +68,6 @@ class ChatMemberServiceTest {
 
     @Test
     void enteredChatList() {
-
         em.persist(Chat.createPrivateChat(host, newParticipant));
 
         assertThat(chatMemberService.enteredChatList(host.getId()).size()).isEqualTo(2);
@@ -75,7 +78,6 @@ class ChatMemberServiceTest {
 
     @Test
     void 채팅방나가기_채팅방멤버목록() {
-
         chat.enter(newParticipant);
 
         chatMemberService.removeChatMember(chat.getId(), newParticipant.getId());
@@ -86,7 +88,6 @@ class ChatMemberServiceTest {
 
     @Test
     void 채팅방나가기_참여중인채팅방목록() {
-
         chat.enter(newParticipant);
 
         chatMemberService.removeChatMember(chat.getId(), newParticipant.getId());
@@ -96,7 +97,6 @@ class ChatMemberServiceTest {
 
     @RepeatedTest(5)
     void 안읽은메세지_입장후카운트() throws InterruptedException {
-
         for (int i = 0; i < 3; i++) {
             em.persist(new Message(chat, host, "message"));
         }
@@ -109,13 +109,10 @@ class ChatMemberServiceTest {
         }
 
         assertThat(chatMemberService.countUnreadMessages(newParticipant.getId())).isEqualTo(5);
-
     }
-
 
     @RepeatedTest(5)
     void 안읽은메세지_lastReadMessage이용() {
-
         chat.enter(newParticipant);
         for (int i = 0; i < 3; i++) {
             Message message = new Message(chat, host, "message");
@@ -129,17 +126,12 @@ class ChatMemberServiceTest {
         }
 
         assertThat(chatMemberService.countUnreadMessages(newParticipant.getId())).isEqualTo(5);
-
     }
-
 
     @RepeatedTest(5)
     void 안읽은메세지_채팅방여러개() {
-
         Chat chat1 = Chat.createPrivateChat(host, newParticipant);
-        Chat chat2 = Chat.createPublicChat(host, "chat1", 2);
         em.persist(chat1);
-        em.persist(chat2);
 
         for (int i = 0; i < 5; i++) {
             Message message = new Message(chat1, host, "message");
@@ -150,20 +142,18 @@ class ChatMemberServiceTest {
             em.persist(new Message(chat1, host, "message"));
         }
         for (int i = 0; i < 10; i++) {
-            em.persist(new Message(chat2, host, "message"));
+            em.persist(new Message(chat, host, "message"));
         }
 
-        chat2.enter(newParticipant);
+        chat.enter(newParticipant);
         em.flush();
 
-        chatMemberRepository.findByChatAndMember(chat2, newParticipant).get().getCreatedTime();
+        chatMemberRepository.findByChatAndMember(chat, newParticipant).get().getCreatedTime();
         for (int i = 0; i < 7; i++) {
-            em.persist(new Message(chat2, host, "message"));
+            em.persist(new Message(chat, host, "message"));
         }
 
 
         assertThat(chatMemberService.countUnreadMessages(newParticipant.getId())).isEqualTo(17);
-
     }
-
 }

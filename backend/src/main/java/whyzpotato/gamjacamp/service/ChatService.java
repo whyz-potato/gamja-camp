@@ -3,9 +3,11 @@ package whyzpotato.gamjacamp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import whyzpotato.gamjacamp.controller.dto.ChatDto;
 import whyzpotato.gamjacamp.controller.dto.ChatDto.PrivateChatResponse;
 import whyzpotato.gamjacamp.controller.dto.ChatDto.PublicChatRequest;
 import whyzpotato.gamjacamp.controller.dto.ChatDto.PublicChatResponse;
+import whyzpotato.gamjacamp.controller.dto.ChatDto.SimpleChatResponse;
 import whyzpotato.gamjacamp.domain.chat.Chat;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.post.Post;
@@ -18,11 +20,9 @@ import whyzpotato.gamjacamp.repository.PostRepository;
 @Service
 @Transactional
 public class ChatService {
-
     private final ChatRepository chatRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
-
 
     public PrivateChatResponse createPrivateChat(Long senderId, Long receiverId) {
         Member sender = memberRepository.findById(senderId).orElseThrow(NotFoundException::new);
@@ -35,9 +35,15 @@ public class ChatService {
         Member host = memberRepository.findById(hostId).orElseThrow(NotFoundException::new);
         Post post = postRepository.findById(request.getPostId()).orElseThrow(NotFoundException::new);
 
-        Chat publicChat = chatRepository.save(Chat.createPublicChat(host, post.getTitle(), request.getCapacity()));
+        Chat publicChat = chatRepository.save(Chat.createPublicChat(host, post.getTitle(), request.getCapacity(), post));
 
         return new PublicChatResponse(publicChat, post.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public SimpleChatResponse findByPost(Long postId){
+        Chat chat = chatRepository.findByPost_Id(postId).orElseThrow(NotFoundException::new);
+        return new SimpleChatResponse(chat);
     }
 
 
@@ -55,6 +61,4 @@ public class ChatService {
     public void removeChat(Long chatId) {
         chatRepository.deleteById(chatId);
     }
-
-
 }

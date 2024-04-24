@@ -29,9 +29,9 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member writer;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id")
-    private Chat chat;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "chat_id")
+//    private Chat chat;
 
     @Column(length = 50, nullable = false)
     private String title;
@@ -48,10 +48,20 @@ public class Post extends BaseTimeEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<Comment>();
 
+//    @Builder
+//    public Post(Member writer, Chat chat, String title, String content, PostType type, List<Image> images, List<Comment> comments) {
+//        this.writer = writer;
+//        this.chat = chat;
+//        this.title = title;
+//        this.content = content;
+//        this.type = type;
+//        this.images = images;
+//        this.comments = comments;
+//    }
+
     @Builder
-    public Post(Member writer, Chat chat, String title, String content, PostType type, List<Image> images, List<Comment> comments) {
+    public Post(Member writer, String title, String content, PostType type, List<Image> images, List<Comment> comments) {
         this.writer = writer;
-        this.chat = chat;
         this.title = title;
         this.content = content;
         this.type = type;

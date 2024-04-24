@@ -1,10 +1,12 @@
 package whyzpotato.gamjacamp.domain.chat;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import whyzpotato.gamjacamp.domain.BaseTimeEntity;
 import whyzpotato.gamjacamp.domain.member.Member;
+import whyzpotato.gamjacamp.domain.post.Post;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -33,6 +35,9 @@ public class Chat extends BaseTimeEntity {
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
     private List<ChatMember> chatMemberList = new ArrayList<ChatMember>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post = null;
 
     @Column(length = 20)
     private String title;
@@ -45,25 +50,31 @@ public class Chat extends BaseTimeEntity {
     @JoinColumn(name = "last_message_id")
     private Message lastMessage = null;
 
-    private Chat(Member host, ChatType type, String title, int capacity) {
+    @Builder
+    private Chat(Member host, ChatType type, String title, int capacity, Post post) {
         this.host = host;
         this.type = type;
         this.title = title;
         this.capacity = capacity;
+        this.post = post;
     }
 
     // user - user
-    public static Chat createPublicChat(Member host, String title, int capacity) {
+    public static Chat createPublicChat(Member host, String title, int capacity, Post post) {
         if (capacity > 10)
             throw new IllegalArgumentException();
-        Chat chat = new Chat(host, ChatType.GROUP, title, capacity);
+        Chat chat = Chat.builder()
+                .host(host).type(ChatType.GROUP).title(title).capacity(capacity).post(post)
+                .build();
         chat.chatMemberList.add(new ChatMember(chat, host, title));
         return chat;
     }
 
     // camp host - camp customer
     public static Chat createPrivateChat(Member sender, Member receiver) {
-        Chat chat = new Chat(sender, ChatType.SINGLE, receiver.getUsername(), 2);
+        Chat chat = Chat.builder()
+                .host(sender).type(ChatType.SINGLE).title(receiver.getUsername()).capacity(2)
+                .build();
         chat.chatMemberList.add(new ChatMember(chat, sender, receiver));
         chat.chatMemberList.add(new ChatMember(chat, receiver, sender));
         return chat;

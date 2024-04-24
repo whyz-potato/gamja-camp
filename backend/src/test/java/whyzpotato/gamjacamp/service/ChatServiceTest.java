@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import whyzpotato.gamjacamp.controller.dto.ChatDto.PrivateChatResponse;
+import whyzpotato.gamjacamp.controller.dto.ChatDto.PublicChatRequest;
 import whyzpotato.gamjacamp.domain.chat.Chat;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.member.Role;
+import whyzpotato.gamjacamp.domain.post.Post;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,6 +53,14 @@ class ChatServiceTest {
         em.clear();
     }
 
+    Post createPostForPublicChat() {
+        Member writer = new Member("writer", "writer", "picturexxx", Role.CUSTOMER);
+        Post post = Post.builder().writer(writer).title("title").content("content").images(new ArrayList<>()).build();
+        em.persist(writer);
+        em.persist(post);
+        return post;
+    }
+
     @Test
     void createPrivateChat() {
         PrivateChatResponse dto = chatService.createPrivateChat(host.getId(), receiver.getId());
@@ -60,7 +71,6 @@ class ChatServiceTest {
         assertThat(dto.getTitle()).isEqualTo(receiver.getUsername());
 
     }
-
 
     //TODO after post
     @Test
@@ -113,7 +123,16 @@ class ChatServiceTest {
 
         assertThat(em.find(Chat.class, dto.getRoomId())).isNull();
         assertThat(chatMemberService.enteredChatList(host.getId())).isEmpty();
-
     }
 
+    @Test
+    @DisplayName("모집글의 채팅 조회")
+    void findByPost() {
+        Post post = createPostForPublicChat();
+        PublicChatRequest request = new PublicChatRequest(post.getId(), 3);
+        chatService.createPublicChat(post.getWriter().getId(), request);
+
+        assertThat(chatService.findByPost(post.getId())).isNotNull();
+        assertThat(chatService.findByPost(post.getId()).getCapacity()).isEqualTo(3);
+    }
 }

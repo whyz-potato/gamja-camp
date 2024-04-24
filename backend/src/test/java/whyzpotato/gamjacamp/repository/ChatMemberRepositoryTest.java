@@ -1,6 +1,5 @@
 package whyzpotato.gamjacamp.repository;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,14 +12,14 @@ import whyzpotato.gamjacamp.domain.chat.ChatMember;
 import whyzpotato.gamjacamp.domain.chat.Message;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.member.Role;
+import whyzpotato.gamjacamp.domain.post.Post;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -35,15 +34,18 @@ class ChatMemberRepositoryTest {
     private Member sender;
     private Member receiver;
     private Chat chat1, chat2;
+    private Post post;
 
     @BeforeEach
     void setUp() {
         sender = new Member("a", "sender", "p", Role.CUSTOMER);
         receiver = new Member("a", "receiver", "p", Role.CUSTOMER);
-        chat1 = Chat.createPublicChat(sender, "chat1", 3);
+        post = Post.builder().writer(sender).title("title").content("content").images(new ArrayList<>()).build();
+        chat1 = Chat.createPublicChat(sender, "chat1", 3, post);
         chat2 = Chat.createPrivateChat(sender, receiver);
         em.persist(sender);
         em.persist(receiver);
+        em.persist(post);
         em.persist(chat1);
         em.persist(chat2);
     }
@@ -55,7 +57,7 @@ class ChatMemberRepositoryTest {
 
     @Test
     @DisplayName("채팅방 목록")
-    void chatsByMember(){
+    void chatsByMember() {
 
         List<ChatMember> senderChats = chatMemberRepository.findByMemberOrderByChatLastModified(sender);
         List<ChatMember> receiverChats = chatMemberRepository.findByMemberOrderByChatLastModified(receiver);
@@ -67,7 +69,7 @@ class ChatMemberRepositoryTest {
 
     @Test
     @DisplayName("채팅방 목록_정렬 기본값은 채팅생성역순")
-    void chatsByMemberCreateOrdered(){
+    void chatsByMemberCreateOrdered() {
 
         List<ChatMember> senderChats = chatMemberRepository.findByMemberOrderByChatLastModified(sender);
 
@@ -78,7 +80,7 @@ class ChatMemberRepositoryTest {
 
     @Test
     @DisplayName("채팅방 목록_최우선은 마지막 메세지 역순")
-    void chatsByMemberMessageOrdered(){
+    void chatsByMemberMessageOrdered() {
 
         em.persist(new Message(chat1, sender, "last message"));
 
@@ -86,7 +88,6 @@ class ChatMemberRepositoryTest {
 
         assertThat(senderChats.get(0).getChat()).isEqualTo(chat1);
         assertThat(senderChats.get(1).getChat()).isEqualTo(chat2);
-
     }
 
 
@@ -99,6 +100,4 @@ class ChatMemberRepositoryTest {
         System.out.println("chatMember.getChat().getTitle() = " + chatMember.getChat().getTitle());
         System.out.println("chatMember.getMember().getUsername() = " + chatMember.getMember().getUsername());
     }
-
-
 }

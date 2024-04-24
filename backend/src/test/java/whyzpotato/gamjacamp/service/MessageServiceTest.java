@@ -12,6 +12,7 @@ import whyzpotato.gamjacamp.domain.chat.ChatMember;
 import whyzpotato.gamjacamp.domain.chat.Message;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.member.Role;
+import whyzpotato.gamjacamp.domain.post.Post;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,19 +36,20 @@ class MessageServiceTest {
     private Member participant;
     private Member outsider;
     private Chat chat;
-
+    private Post post;
 
     @BeforeEach
     void setUp() {
         host = new Member("a", "host", "p", Role.CUSTOMER);
         participant = new Member("a", "newParticipant", "p", Role.CUSTOMER);
         outsider = new Member("a", "outsider", "p", Role.CUSTOMER);
-        chat = Chat.createPublicChat(host, "chat1", 2);
+        post = Post.builder().writer(host).title("title").content("content").images(new ArrayList<>()).build();
+        chat = Chat.createPublicChat(host, "chat1", 2, post);
         em.persist(host);
         em.persist(participant);
         em.persist(outsider);
+        em.persist(post);
         em.persist(chat);
-
     }
 
     @AfterEach
@@ -57,17 +59,14 @@ class MessageServiceTest {
 
     @Test
     void createMessage() {
-
         ChatMessageDto.DetailMessageDto dto = messageService.createMessage(chat.getId(), host.getId(), "host 입장");
 
         assertThat(dto.getContent()).isEqualTo("host 입장");
         assertThat(dto.getFrom().getUsername()).isSameAs("host");
-
     }
 
     @Test
     void findMessages() {
-
         for (int i = 0; i < 20; i++) {
             em.persist(new Message(chat, host, (i + 1) + "번 메세지"));
         }
@@ -77,12 +76,10 @@ class MessageServiceTest {
         assertThat(slice.hasNext()).isEqualTo(true);
         assertThat(slice.getNumberOfElements()).isEqualTo(10);
         assertThat(slice.getMessages().get(0).getContent()).isEqualTo("11번 메세지");
-
     }
 
     @Test
     void findMessagesBefore() {
-
         List<Message> messages = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             Message message = new Message(chat, host, (i + 1) + "번 메세지");
@@ -97,12 +94,10 @@ class MessageServiceTest {
         assertThat(slice.getNumberOfElements()).isEqualTo(4);
         assertThat(slice.getMessages().get(0).getContent()).isEqualTo(messages.get(0).getContent());
         assertThat(slice.getMessages().get(1).getContent()).isEqualTo(messages.get(1).getContent());
-
     }
 
     @Test
     void countUnreadMessageTest() {
-
         for (int i = 0; i < 10; i++) {
             messageService.createMessage(chat.getId(), host.getId(), (i + 1) + "번 메세지");
         }
@@ -120,7 +115,6 @@ class MessageServiceTest {
 
     @Test
     void findMessages_haveNotRead() {
-
         chat.enter(participant);
 
         for (int i = 0; i < 20; i++) {
@@ -133,12 +127,10 @@ class MessageServiceTest {
         assertThat(slice.hasNext()).isEqualTo(true);
         assertThat(slice.getNumberOfElements()).isEqualTo(10);
         assertThat(slice.getMessages().get(0).getContent()).isEqualTo("11번 메세지");
-
     }
 
     @Test
     void findMessages_fromUnread() {
-
         chat.enter(participant);
 
         List<Message> messages = new ArrayList<>();
@@ -155,7 +147,5 @@ class MessageServiceTest {
         assertThat(slice.hasNext()).isEqualTo(true);
         assertThat(slice.getNumberOfElements()).isEqualTo(10);
         assertThat(slice.getMessages().get(0).getContent()).isEqualTo("1번 메세지");
-
     }
-
 }
