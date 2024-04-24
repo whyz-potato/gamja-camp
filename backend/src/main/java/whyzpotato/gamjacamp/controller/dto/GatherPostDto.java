@@ -86,24 +86,6 @@ public class GatherPostDto {
         private String content;
         private PostType postType;
         private List<String> images;
-//        private Long chat;
-
-//        @Builder
-//        public GatherPostDetail(Long id, Member writer, String title, String content, PostType postType, List<Image> images, Chat chat, LocalDate date, LocalTime time) {
-//            this.id = id;
-//            this.writer = new WriterSimple(writer);
-//            this.date = date;
-//            this.time = time;
-//            this.title = title;
-//            this.content = content;
-//            this.postType = postType;
-//            if(!images.isEmpty()) {
-//                this.images = images.stream()
-//                        .map(Image::getPath)
-//                        .collect(Collectors.toList());
-//            }
-//            this.chat = chat.getId();
-//        }
 
         @Builder
         public GatherPostDetail(Long id, Member writer, String title, String content, PostType postType, List<Image> images, LocalDate date, LocalTime time) {
@@ -134,9 +116,6 @@ public class GatherPostDto {
                         .map(Image::getPath)
                         .collect(Collectors.toList());
             }
-//            if(post.getChat() != null ) {
-//                this.chat = post.getChat().getId();
-//            }
         }
     }
 
