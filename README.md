@@ -90,6 +90,6 @@ cloud.aws.credentials.secret-key={secret-key}
 - 예약 관리 및 1:1 채팅
 
 ## 🛠️ERD
-![감자캠핑.png](backend/감자캠핑_ERD.png)
+![감자캠핑.png](backend/domain_final.png)
 ## 🛠️API Docs
 [Gamja Camp API Docs](https://documenter.getpostman.com/view/19596204/2s93m4X319)
