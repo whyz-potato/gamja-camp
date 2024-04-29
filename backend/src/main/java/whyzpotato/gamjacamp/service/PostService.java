@@ -59,6 +59,7 @@ public class PostService {
     public GeneralPostDetail findGeneralPost(Long postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Post generalPost = optionalPost.orElseThrow(() -> new NoSuchElementException());
+        if (!generalPost.getType().equals(PostType.GENERAL)) throw new NoSuchElementException();
         return new GeneralPostDetail(generalPost);
     }
 
@@ -98,7 +99,7 @@ public class PostService {
     public void deleteGeneralPost(Long memberId, Long postId) {
         Member writer = memberRepository.findById(memberId).get();
         Post post = postRepository.findById(postId).get();
-        if(post.getWriter().equals(writer)) {
+        if(post.getWriter().equals(writer) && post.getType().equals(PostType.GENERAL)) {
             postRepository.delete(post);
             return;
         }
@@ -147,6 +148,7 @@ public class PostService {
     public GatherPostDetail findGatherPost(Long postId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Post gatherPost = optionalPost.orElseThrow(() -> new NoSuchElementException());
+        if (!gatherPost.getType().equals(PostType.GATHER)) throw new NoSuchElementException();
         return new GatherPostDetail(gatherPost);
     }
 
@@ -186,7 +188,7 @@ public class PostService {
     public void deleteGatherPost(Long memberId, Long postId) {
         Member writer = memberRepository.findById(memberId).get();
         Post post = postRepository.findById(postId).get();
-        if(post.getWriter().equals(writer)) {
+        if(post.getWriter().equals(writer) && post.getType().equals(PostType.GATHER)) {
             postRepository.delete(post);
             return;
         }
