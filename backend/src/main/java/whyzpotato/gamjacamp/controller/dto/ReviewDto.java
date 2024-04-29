@@ -1,21 +1,22 @@
 package whyzpotato.gamjacamp.controller.dto;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+import whyzpotato.gamjacamp.controller.dto.WriterDto.WriterSimple;
 import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Image;
 import whyzpotato.gamjacamp.domain.Reservation;
 import whyzpotato.gamjacamp.domain.Review;
 import whyzpotato.gamjacamp.domain.member.Member;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
 @NoArgsConstructor
 public class ReviewDto {
 
@@ -23,15 +24,19 @@ public class ReviewDto {
     @NoArgsConstructor
     public static class ReviewSimple {
         private Long id;
-        private Long writer;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private Long camp;
         private Long reservation;
         private int rate;
 
         @Builder
-        public ReviewSimple(Long id, Long writer, Long camp, Long reservation, int rate) {
+        public ReviewSimple(Long id, Member writer, Long camp, Long reservation, int rate, LocalDate date, LocalTime time) {
             this.id = id;
-            this.writer = writer;
+            this.writer = new WriterSimple(writer);
+            this.date = date;
+            this.time = time;
             this.camp = camp;
             this.reservation = reservation;
             this.rate = rate;
@@ -41,7 +46,9 @@ public class ReviewDto {
             Page<ReviewSimple> reviewSimpleList = reviews.map(
                     m-> ReviewSimple.builder()
                             .id(m.getId())
-                            .writer(m.getWriter().getId())
+                            .writer(m.getWriter())
+                            .date(m.getCreatedTime().toLocalDate())
+                            .time(m.getCreatedTime().toLocalTime())
                             .camp(m.getCamp().getId())
                             .reservation(m.getReservation().getId())
                             .rate(m.getRate())
@@ -54,7 +61,9 @@ public class ReviewDto {
     @NoArgsConstructor
     public static class ReviewDetail {
         private Long id;
-        private Long writer;
+        private WriterSimple writer;
+        private LocalDate date;
+        private LocalTime time;
         private Long camp;
         private Long reservation;
         private int rate;
@@ -62,9 +71,11 @@ public class ReviewDto {
         private List<String> images;
 
         @Builder
-        public ReviewDetail(Long id, Member writer, Camp camp, Reservation reservation, int rate, String content, List<Image> images) {
+        public ReviewDetail(Long id, Member writer, Camp camp, Reservation reservation, int rate, String content, List<Image> images, LocalDate date, LocalTime time) {
             this.id = id;
-            this.writer = writer.getId();
+            this.writer = new WriterSimple(writer);
+            this.date = date;
+            this.time = time;
             this.camp = camp.getId();
             this.reservation = reservation.getId();
             this.rate = rate;
@@ -76,9 +87,11 @@ public class ReviewDto {
             }
         }
 
-        public ReviewDetail(whyzpotato.gamjacamp.domain.Review review) {
+        public ReviewDetail(Review review) {
             this.id = review.getId();
-            this.writer = review.getWriter().getId();
+            this.writer = new WriterSimple(review.getWriter());
+            this.date = review.getCreatedTime().toLocalDate();
+            this.time = review.getCreatedTime().toLocalTime();
             this.camp = review.getCamp().getId();
             this.reservation = review.getReservation().getId();
             this.rate = review.getRate();
@@ -103,8 +116,8 @@ public class ReviewDto {
             this.content = content;
         }
 
-        public whyzpotato.gamjacamp.domain.Review toEntity(Member member, Camp camp, Reservation reservation) {
-            return whyzpotato.gamjacamp.domain.Review.builder()
+        public Review toEntity(Member member, Camp camp, Reservation reservation) {
+            return Review.builder()
                     .writer(member)
                     .camp(camp)
                     .reservation(reservation)

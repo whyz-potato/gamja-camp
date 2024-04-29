@@ -20,6 +20,7 @@ import whyzpotato.gamjacamp.domain.chat.ChatMember;
 import whyzpotato.gamjacamp.domain.chat.Message;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.member.Role;
+import whyzpotato.gamjacamp.domain.post.Post;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -37,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 class ChatControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -50,13 +50,22 @@ class ChatControllerTest {
     private ObjectMapper objectMapper;
 
     private Member sender, receiver;
+    private Chat privateChat;
+    private Chat publicChat;
+    private Post post;
 
     @BeforeEach
     void setUp() {
         sender = new Member("customer@potato.com", "sender", "", Role.CUSTOMER);
         receiver = new Member("a", "receiver", "", Role.CUSTOMER);
+        post = Post.builder().writer(sender).title("title").content("content").images(new ArrayList<>()).build();
+        privateChat = Chat.createPrivateChat(sender, receiver);
+        publicChat = Chat.createPublicChat(sender, "모집 채팅", 10, post);
         em.persist(sender);
         em.persist(receiver);
+        em.persist(post);
+        em.persist(privateChat);
+        em.persist(publicChat);
 
         session = new MockHttpSession();
     }
@@ -69,10 +78,9 @@ class ChatControllerTest {
 
     @Test
     void createPrivateChat() throws Exception {
-
         String request = objectMapper.writeValueAsString(new ChatDto.PrivateChatRequest(receiver.getId()));
-
         session.setAttribute("member", new SessionMember(sender));
+
         mockMvc.perform(post("/chats/single")
                         .session(session)
                         .with(csrf())
@@ -83,31 +91,30 @@ class ChatControllerTest {
                 .andDo(print());
     }
 
-    //TODO after post
     @Test
     void createPublicChat() throws Exception {
+        String request = objectMapper.writeValueAsString(new ChatDto.PublicChatRequest(post.getId(), 2));
+        session.setAttribute("member", new SessionMember(sender));
 
-//        String request = objectMapper.writeValueAsString(new ChatDto.PublicChatRequest(receiver.getId()));
-//
-//        mockMvc.perform(post("/chats/group").session(session)
-//                        .content(request)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andDo(print());
-
+        mockMvc.perform(post("/chats/group")
+                        .with(csrf())
+                        .session(session)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
     @Test
     void getMassages() throws Exception {
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
+        String uri = String.format("/chats/%d", privateChat.getId());
+        session.setAttribute("member", new SessionMember(sender));
+
         for (int i = 0; i < 20; i++) {
-            em.persist(new Message(chat, sender, (i + 1) + "번 메세지"));
+            em.persist(new Message(privateChat, sender, (i + 1) + "번 메세지"));
         }
 
-        String uri = String.format("/chats/%d", chat.getId());
-        session.setAttribute("member", new SessionMember(sender));
         mockMvc.perform(get(uri).session(session))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("numberOfElements").value(10))
@@ -117,18 +124,16 @@ class ChatControllerTest {
 
     @Test
     void getMassagesBefore() throws Exception {
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
         List<Message> messages = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Message message = new Message(chat, sender, (i + 1) + "번 메세지");
+            Message message = new Message(privateChat, sender, (i + 1) + "번 메세지");
             em.persist(message);
             messages.add(message);
         }
 
         String fifthId = messages.get(5).getId().toString();
 
-        String uri = String.format("/chats/%d", chat.getId());
+        String uri = String.format("/chats/%d", privateChat.getId());
         session.setAttribute("member", new SessionMember(sender));
         mockMvc.perform(get(uri).session(session)
                         .param("before", fifthId))
@@ -142,19 +147,17 @@ class ChatControllerTest {
     @Rollback(false)
     @DisplayName("안읽은메세지 쌓인 경우")
     void getMassages_unread() throws Exception {
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
         List<Message> messages = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
-            Message message = new Message(chat, sender, (i + 1) + "번 메세지");
+            Message message = new Message(privateChat, sender, (i + 1) + "번 메세지");
             em.persist(message);
             messages.add(message);
         }
-        ChatMember chatMember = chat.getChatMemberList().get(1);
+        ChatMember chatMember = privateChat.getChatMemberList().get(1);
         Message fifth = messages.get(5);
         chatMember.updateLastReadMessage(fifth);
 
-        String uri = String.format("/chats/%d", chat.getId());
+        String uri = String.format("/chats/%d", privateChat.getId());
         session.setAttribute("member", new SessionMember(receiver));
         mockMvc.perform(get(uri).session(session)
                         .param("max-unread", "15"))
@@ -169,11 +172,8 @@ class ChatControllerTest {
 
     @Test
     void 채팅방나가기() throws Exception {
+        String uri = String.format("/chats/%d/members", privateChat.getId());
 
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
-
-        String uri = String.format("/chats/%d/members", chat.getId());
         session.setAttribute("member", new SessionMember(receiver));
         mockMvc.perform(delete(uri)
                         .session(session)
@@ -184,11 +184,7 @@ class ChatControllerTest {
 
     @Test
     void 채팅방나가기_방장() throws Exception {
-
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
-
-        String uri = String.format("/chats/%d/members", chat.getId());
+        String uri = String.format("/chats/%d/members", privateChat.getId());
         session.setAttribute("member", new SessionMember(sender));
         mockMvc.perform(delete(uri)
                         .session(session)
@@ -199,11 +195,7 @@ class ChatControllerTest {
 
     @Test
     void 채팅방삭제_방장() throws Exception {
-
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
-
-        String uri = String.format("/chats/%d", chat.getId());
+        String uri = String.format("/chats/%d", privateChat.getId());
         session.setAttribute("member", new SessionMember(sender));
         mockMvc.perform(delete(uri)
                         .session(session)
@@ -215,11 +207,7 @@ class ChatControllerTest {
 
     @Test
     void 채팅방삭제_방장아님_실패() throws Exception {
-
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
-
-        String uri = String.format("/chats/%d", chat.getId());
+        String uri = String.format("/chats/%d", privateChat.getId());
         session.setAttribute("member", new SessionMember(receiver));
         mockMvc.perform(delete(uri).session(session))
                 .andExpect(status().is4xxClientError())
@@ -228,10 +216,6 @@ class ChatControllerTest {
 
     @Test
     void 안읽은메세지() throws Exception {
-
-        Chat chat = Chat.createPrivateChat(sender, receiver);
-        em.persist(chat);
-
         String uri = "/chats/num-unread";
         session.setAttribute("member", new SessionMember(receiver));
         mockMvc.perform(get(uri).session(session))
@@ -243,12 +227,6 @@ class ChatControllerTest {
     @Test
     @DisplayName("채팅방 목록")
     void chats() throws Exception {
-
-        Chat chat1 = Chat.createPrivateChat(sender, receiver);
-        Chat chat2 = Chat.createPublicChat(sender, "chat2", 10);
-        em.persist(chat1);
-        em.persist(chat2);
-
         String uri = "/chats";
         session.setAttribute("member", new SessionMember(sender));
         mockMvc.perform(get(uri).session(session))
@@ -262,18 +240,12 @@ class ChatControllerTest {
     @Test
     @DisplayName("채팅방 목록 순서1_마지막메세지 역순, 채팅방 생성 역순")
     void chatsSorted() throws Exception {
-
-        Chat chat1 = Chat.createPrivateChat(sender, receiver);
-        Chat chat2 = Chat.createPublicChat(sender, "chat2", 10);
-        em.persist(chat1);
-        em.persist(chat2);
-
         String uri = "/chats";
         session.setAttribute("member", new SessionMember(sender));
         mockMvc.perform(get(uri).session(session))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.chats").exists())
-                .andExpect(jsonPath("$.chats[0].title").value("chat2"))
+                .andExpect(jsonPath("$.chats[0].title").value(publicChat.getTitle()))
                 .andExpect(jsonPath("$.chats[1].title").value("receiver"))
                 .andDo(print());
     }
@@ -281,13 +253,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("채팅방 목록 순서2_마지막메세지 역순, 채팅방 생성 역순")
     void chatsSorted2() throws Exception {
-
-        Chat chat1 = Chat.createPrivateChat(sender, receiver);
-        Chat chat2 = Chat.createPublicChat(sender, "chat2", 10);
-        em.persist(chat1);
-        em.persist(chat2);
-        em.persist(new Message(chat1, sender, "hello"));
-
+        em.persist(new Message(privateChat, sender, "hello"));
 
         String uri = "/chats";
         session.setAttribute("member", new SessionMember(sender));
@@ -295,7 +261,21 @@ class ChatControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.chats").exists())
                 .andExpect(jsonPath("$.chats[0].title").value("receiver"))
-                .andExpect(jsonPath("$.chats[1].title").value("chat2"))
+                .andExpect(jsonPath("$.chats[1].title").value(publicChat.getTitle()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글로 채팅 정보 조회")
+    void test() throws Exception {
+        String uri = String.format("/chats/group/%d", post.getId());
+        session.setAttribute("member", new SessionMember(sender));
+
+        mockMvc.perform(get(uri)
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("roomId").value(publicChat.getId()))
+                .andExpect(jsonPath("capacity").value(10))
                 .andDo(print());
     }
 }
