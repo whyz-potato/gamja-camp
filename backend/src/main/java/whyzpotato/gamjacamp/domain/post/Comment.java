@@ -34,7 +34,7 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "upper_comment_id")
     private Comment upperComment;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "upperComment")
+    @OneToMany(mappedBy = "upperComment", fetch = FetchType.LAZY)
     private List<Comment> lowerComments = new ArrayList<Comment>();
 
     @Column(length = 300)
