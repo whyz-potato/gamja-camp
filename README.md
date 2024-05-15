@@ -89,7 +89,9 @@ cloud.aws.credentials.secret-key={secret-key}
 - 캠핑장 등록 및 관리
 - 예약 관리 및 1:1 채팅
 
+## 🛠️UML
+![감자캠핑_UML.png](backend/감자캠핑_UML.png)
 ## 🛠️ERD
-![감자캠핑.png](backend/domain_final.png)
+![감자캠핑_ERD.jpg](backend/감자캠핑_ERD.jpg)
 ## 🛠️API Docs
 [Gamja Camp API Docs](https://documenter.getpostman.com/view/19596204/2s93m4X319)
