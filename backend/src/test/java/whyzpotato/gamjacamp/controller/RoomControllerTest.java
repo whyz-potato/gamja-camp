@@ -14,6 +14,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import whyzpotato.gamjacamp.config.auth.dto.SessionMember;
 import whyzpotato.gamjacamp.controller.dto.RoomDto.RoomSaveRequest;
 import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Reservation;
@@ -194,6 +195,22 @@ class RoomControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden())
+                .andDo(print());
+    }
+
+    @DisplayName("사장님 객실 조회")
+    @WithMockUser(roles = "OWNER")
+    @Test
+    void ownerRooms() throws Exception {
+        String uri = "/owner/rooms";
+        session.setAttribute("member", new SessionMember(host));
+        mockMvc.perform(get(uri)
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.numberOfElements").exists())
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.content[0].id").exists())
                 .andDo(print());
     }
 }
