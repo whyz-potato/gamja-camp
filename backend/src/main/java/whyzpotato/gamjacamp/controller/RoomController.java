@@ -27,7 +27,7 @@ public class RoomController {
         return ResponseEntity.ok(roomService.findCampAvailableRooms(campId, checkIn, checkOut, numGuest));
     }
 
-    @GetMapping("rooms/{roomId}")
+    @GetMapping("/rooms/{roomId}")
     public ResponseEntity<RoomResponse> roomWithAvailCount(@PathVariable Long roomId,
                                                            @RequestParam(value = "check-in", defaultValue = "#{T(java.time.LocalDateTime).now()}") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate checkIn,
                                                            @RequestParam(value = "check-out", defaultValue = "#{T(java.time.LocalDateTime).now().plusDays(1)}") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate checkOut,
