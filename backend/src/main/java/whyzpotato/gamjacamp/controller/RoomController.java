@@ -2,12 +2,19 @@ package whyzpotato.gamjacamp.controller;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import whyzpotato.gamjacamp.config.auth.LoginMember;
+import whyzpotato.gamjacamp.config.auth.dto.SessionMember;
+import whyzpotato.gamjacamp.controller.dto.RoomDto;
 import whyzpotato.gamjacamp.controller.dto.RoomDto.RoomResponse;
 import whyzpotato.gamjacamp.controller.dto.RoomDto.RoomSaveRequest;
 import whyzpotato.gamjacamp.controller.dto.RoomDto.RoomSearchResponse;
+import whyzpotato.gamjacamp.controller.dto.Utility.PageResult;
 import whyzpotato.gamjacamp.service.RoomService;
 
 import javax.validation.Valid;
@@ -41,6 +48,14 @@ public class RoomController {
                                      @Valid @RequestBody RoomSaveRequest request) {
 
         return ResponseEntity.ok(new CreatedBodyDto(roomService.saveRoom(campId, request)));
+    }
+
+    @GetMapping("/owner/rooms")
+    public ResponseEntity<PageResult<RoomDto.RoomInfo>> ownerRooms(@LoginMember SessionMember owner,
+                                                                   @PageableDefault Pageable pageable) {
+
+        Page<RoomDto.RoomInfo> ownerRooms = roomService.findOwnerRooms(owner.getId(), pageable);
+        return ResponseEntity.ok(new PageResult<>(ownerRooms));
     }
 
     @Data

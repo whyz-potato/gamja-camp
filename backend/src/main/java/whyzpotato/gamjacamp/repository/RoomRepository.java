@@ -1,8 +1,11 @@
 package whyzpotato.gamjacamp.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Room;
 
 import java.time.LocalDate;
@@ -33,4 +36,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
                     " where r.room_id = :room_id and r.capacity >= :numGuests"
     )
     Long countAvailRoom(@Param("room_id") Long roomId, @Param("start") LocalDate checkIn, @Param("end") LocalDate checkOut, @Param("numGuests") int numGuests);
+
+    Page<Room> findAllByCamp(Camp camp, Pageable pageable);
 }

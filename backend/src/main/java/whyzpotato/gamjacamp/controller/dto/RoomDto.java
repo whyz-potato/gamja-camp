@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import whyzpotato.gamjacamp.domain.Room;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.List;
@@ -69,6 +70,37 @@ public class RoomDto {
         }
     }
 
+    @Getter
+    @NoArgsConstructor
+    public static class RoomInfo {
+        @NotNull
+        private Long id;
+
+        @NotBlank
+        private String name;
+
+        @Positive
+        private int cnt;
+
+        @Positive
+        private int capacity;
+
+        @Positive
+        private int weekPrice;
+
+        @Positive
+        private int weekendPrice;
+
+        public RoomInfo(Room room) {
+            this.id = room.getId();
+            this.name = room.getName();
+            this.cnt = room.getCnt();
+            this.capacity = room.getCapacity();
+            this.weekPrice = room.getWeekPrice();
+            this.weekendPrice = room.getWeekendPrice();
+        }
+    }
+
 
     @Getter
     @NoArgsConstructor
@@ -93,7 +125,7 @@ public class RoomDto {
         private Long id;
         private String name;
         private int capacity;
-//        private List<String> images;
+        //        private List<String> images;
         private PriceDto price;
 
         public RoomDetail(Room room, LocalDate stayStarts, LocalDate stayEnds) {
