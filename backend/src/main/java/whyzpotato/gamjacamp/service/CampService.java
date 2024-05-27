@@ -6,22 +6,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import whyzpotato.gamjacamp.controller.dto.CampDto.CampSearchItem;
-import whyzpotato.gamjacamp.controller.dto.CampDto.CampSearchResult;
-import whyzpotato.gamjacamp.controller.dto.Utility.PageResult;
+import whyzpotato.gamjacamp.controller.dto.CampDto.*;
 import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Coordinate;
 import whyzpotato.gamjacamp.domain.Image;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.exception.NotFoundException;
-import whyzpotato.gamjacamp.controller.dto.CampDto.CampDetail;
-import whyzpotato.gamjacamp.controller.dto.CampDto.CampSaveRequest;
-import whyzpotato.gamjacamp.controller.dto.CampDto.CampUpdateRequest;
 import whyzpotato.gamjacamp.repository.CampRepository;
 import whyzpotato.gamjacamp.repository.ImageRepository;
 import whyzpotato.gamjacamp.repository.MemberRepository;
 import whyzpotato.gamjacamp.repository.RoomRepository;
-import whyzpotato.gamjacamp.repository.querydto.CampQueryDto;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -98,7 +92,7 @@ public class CampService {
         Camp camp = campRepository.save(request.toEntity(member, coordinate));
         if (fileNameList == null)
             return camp.getId();
-        for(String fileName : fileNameList) {
+        for (String fileName : fileNameList) {
             String fileUrl = "https://gamja-camp.s3.ap-northeast-2.amazonaws.com/" + fileName;
             imageRepository.save(Image.builder().camp(camp).fileName(fileName).path(fileUrl).build());
         }
@@ -115,6 +109,13 @@ public class CampService {
         return new CampDetail(camp);
     }
 
+    @Transactional(readOnly = true)
+    public CampDetail findOwnerCamp(Long ownerId) {
+        Member host = memberRepository.findById(ownerId).orElseThrow(NoSuchElementException::new);
+        Camp camp = campRepository.findByMember(host).orElseThrow(() -> new NoSuchElementException("등록된 캠핑장이 없습니다."));
+        return new CampDetail(camp);
+    }
+
     /**
      * 캠핑장 정보 수정
      * 이름, 연락처, 설명, 운영시간
@@ -124,7 +125,7 @@ public class CampService {
         Member member = memberRepository.findById(memberId).get();
         if (camp.getMember().equals(member)) {
             camp.update(request);
-            campRepository.save(updateOperatingHour(camp,request.getCampOperationStart(), request.getCampOperationEnd()));
+            campRepository.save(updateOperatingHour(camp, request.getCampOperationStart(), request.getCampOperationEnd()));
             return new CampDetail(camp);
         }
         throw new NoSuchElementException();
@@ -151,7 +152,7 @@ public class CampService {
         Camp camp = campRepository.findById(campId).get();
         Member member = memberRepository.findById(memberId).get();
         if (camp.getMember().equals(member)) {
-            for(String fileName : fileNameList) {
+            for (String fileName : fileNameList) {
                 String fileUrl = "https://gamja-camp.s3.ap-northeast-2.amazonaws.com/" + fileName;
                 imageRepository.save(Image.builder().camp(camp).fileName(fileName).path(fileUrl).build());
             }
@@ -186,8 +187,8 @@ public class CampService {
 
     protected Camp updateOperatingHour(Camp camp, String start, String end) {
         if (start != null && end != null) {
-            LocalTime startTime = LocalTime.of(Integer.parseInt(start.substring(0, start.indexOf(":"))), Integer.parseInt(start.substring(start.indexOf(":")+1)));
-            LocalTime endTime = LocalTime.of(Integer.parseInt(end.substring(0, end.indexOf(":"))), Integer.parseInt(end.substring(end.indexOf(":")+1)));
+            LocalTime startTime = LocalTime.of(Integer.parseInt(start.substring(0, start.indexOf(":"))), Integer.parseInt(start.substring(start.indexOf(":") + 1)));
+            LocalTime endTime = LocalTime.of(Integer.parseInt(end.substring(0, end.indexOf(":"))), Integer.parseInt(end.substring(end.indexOf(":") + 1)));
             camp.updateOperatingHours(startTime, endTime);
         } else {
             camp.updateOperatingHours(null, null);
