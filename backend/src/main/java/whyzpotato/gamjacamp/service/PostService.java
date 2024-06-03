@@ -74,6 +74,17 @@ public class PostService {
     }
 
     /**
+     * 자유게시판 내 글 목록 불러오기
+     */
+    public Page<GeneralPostSimple> findMyGeneralPostList(Long memberId, Long lastPostId) {
+        Member writer = memberRepository.findById(memberId).get();
+        Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
+        Page<Post> posts = postRepository.findByWriterAndIdLessThanAndType(writer, lastPostId, PostType.GENERAL, sortedByIdDesc);
+        Page<GeneralPostSimple> GeneralPostSimpleList = new GeneralPostSimple().toList(posts);
+        return GeneralPostSimpleList;
+    }
+
+    /**
      * 자유게시판 글 수정
      */
     public GeneralPostDetail updateGeneralPost(Long memberId, Long postId, GeneralPostUpdateRequest request, List<String> fileNameList) {
@@ -158,6 +169,17 @@ public class PostService {
     public Page<GatherPostSimple> findGatherPostList(Long lastPostId) {
         Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
         Page<Post> posts = postRepository.findByIdLessThanAndType(lastPostId, PostType.GATHER, sortedByIdDesc);
+        Page<GatherPostSimple> gatherPostSimpleList = new GatherPostSimple().toList(posts);
+        return gatherPostSimpleList;
+    }
+
+    /**
+     * 모집게시판 내 글 목록 불러오기
+     */
+    public Page<GatherPostSimple> findMyGatherPostList(Long memberId, Long postId) {
+        Member writer = memberRepository.findById(memberId).get();
+        Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
+        Page<Post> posts = postRepository.findByWriterAndIdLessThanAndType(writer, postId, PostType.GATHER, sortedByIdDesc);
         Page<GatherPostSimple> gatherPostSimpleList = new GatherPostSimple().toList(posts);
         return gatherPostSimpleList;
     }
