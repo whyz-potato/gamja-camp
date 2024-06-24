@@ -89,7 +89,8 @@ public class CampService {
     public Long register(Long memberId, CampSaveRequest request, List<String> fileNameList) {
         Member member = memberRepository.findById(memberId).get();
         Coordinate coordinate = findCoordinate(request.getAddress());
-        Camp camp = campRepository.save(request.toEntity(member, coordinate));
+        Camp camp = request.toEntity(member, coordinate);
+        campRepository.save(saveOperationHour(camp, request.getCampOperationStart(), request.getCampOperationEnd()));
         if (fileNameList == null)
             return camp.getId();
         for (String fileName : fileNameList) {
@@ -185,13 +186,22 @@ public class CampService {
         throw new NoSuchElementException();
     }
 
-    protected Camp updateOperatingHour(Camp camp, String start, String end) {
+    protected Camp saveOperationHour(Camp camp, String start, String end) {
         if (start != null && end != null) {
             LocalTime startTime = LocalTime.of(Integer.parseInt(start.substring(0, start.indexOf(":"))), Integer.parseInt(start.substring(start.indexOf(":") + 1)));
             LocalTime endTime = LocalTime.of(Integer.parseInt(end.substring(0, end.indexOf(":"))), Integer.parseInt(end.substring(end.indexOf(":") + 1)));
             camp.updateOperatingHours(startTime, endTime);
         } else {
             camp.updateOperatingHours(null, null);
+        }
+        return camp;
+    }
+
+    protected Camp updateOperatingHour(Camp camp, String start, String end) {
+        if (start != null && end != null) {
+            LocalTime startTime = LocalTime.of(Integer.parseInt(start.substring(0, start.indexOf(":"))), Integer.parseInt(start.substring(start.indexOf(":")+1)));
+            LocalTime endTime = LocalTime.of(Integer.parseInt(end.substring(0, end.indexOf(":"))), Integer.parseInt(end.substring(end.indexOf(":")+1)));
+            camp.updateOperatingHours(startTime, endTime);
         }
         return camp;
     }

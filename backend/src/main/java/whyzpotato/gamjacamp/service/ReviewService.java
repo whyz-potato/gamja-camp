@@ -45,6 +45,8 @@ public class ReviewService {
         review.setCamp(camp);
         review.setReservation(reservation);
 
+        if(fileNameList == null)
+            return review.getId();
         for (String fileName : fileNameList) {
             String fileUrl = "https://gamja-camp.s3.ap-northeast-2.amazonaws.com/" + fileName;
             imageRepository.save(Image.builder().review(review).fileName(fileName).path(fileUrl).build());

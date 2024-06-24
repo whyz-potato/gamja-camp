@@ -13,8 +13,9 @@ import whyzpotato.gamjacamp.repository.querydto.CampQueryDto;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CampDto {
 
@@ -41,17 +42,29 @@ public class CampDto {
         private List<String> images;
         private String address;
         private String contact;
-        private LocalTime checkInTime;
-        private LocalTime checkOutTime;
+        private String campOperationStart;
+        private String campOperationEnd;
 
         public CampInfo(Camp camp) {
             this.id = camp.getId();
             this.name = camp.getName();
-            //this.images = camp.getImages(); //TODO image
+            if(!camp.getImages().isEmpty()) {
+                this.images = camp.getImages().stream()
+                        .map(Image::getPath)
+                        .collect(Collectors.toList());
+            }
             this.address = camp.getAddress();
             this.contact = camp.getPhone();
-            this.checkInTime = camp.getCampOperationStart();
-            this.checkOutTime = camp.getCampOperationEnd();
+            if (camp.getCampOperationStart() == null) {
+                this.campOperationStart = "";
+            } else {
+                this.campOperationStart = camp.getCampOperationStart().format(DateTimeFormatter.ofPattern("HH:mm"));
+            }
+            if (camp.getCampOperationEnd() == null) {
+                this.campOperationEnd = "";
+            } else {
+                this.campOperationEnd = camp.getCampOperationEnd().format(DateTimeFormatter.ofPattern("HH:mm"));
+            }
         }
 
     }
@@ -69,21 +82,33 @@ public class CampDto {
         private double longitude;
         private String address;
         private String contact;
-        private LocalTime checkInTime;
-        private LocalTime checkOutTime;
+        private String campOperationStart;
+        private String campOperationEnd;
         private String introduction;
 
         public CampDetail(Camp camp) {
             this.id = camp.getId();
             this.name = camp.getName();
             this.rate = camp.getRate();
-            //this.images = camp.getImages(); //TODO image
+            if(!camp.getImages().isEmpty()) {
+                this.images = camp.getImages().stream()
+                        .map(Image::getPath)
+                        .collect(Collectors.toList());
+            }
             this.latitude = camp.getLatitude();
             this.longitude = camp.getLongitude();
             this.address = camp.getAddress();
             this.contact = camp.getPhone();
-            this.checkInTime = camp.getCampOperationStart();
-            this.checkOutTime = camp.getCampOperationEnd();
+            if (camp.getCampOperationStart() == null) {
+                this.campOperationStart = "";
+            } else {
+                this.campOperationStart = camp.getCampOperationStart().format(DateTimeFormatter.ofPattern("HH:mm"));
+            }
+            if (camp.getCampOperationEnd() == null) {
+                this.campOperationEnd = "";
+            } else {
+                this.campOperationEnd = camp.getCampOperationEnd().format(DateTimeFormatter.ofPattern("HH:mm"));
+            }
             this.introduction = camp.getCampIntroduction();
         }
     }
@@ -136,13 +161,17 @@ public class CampDto {
         private String address;
         private String phone;
         private String campIntroduction;
+        private String campOperationStart;
+        private String campOperationEnd;
 
         @Builder
-        public CampSaveRequest(String name, String address, String phone, String campIntroduction) {
+        public CampSaveRequest(String name, String address, String phone, String campIntroduction, String campOperationStart, String campOperationEnd) {
             this.name = name;
             this.address = address;
             this.phone = phone;
             this.campIntroduction = campIntroduction;
+            this.campOperationStart = campOperationStart;
+            this.campOperationEnd = campOperationEnd;
         }
 
         public Camp toEntity(Member member, Coordinate coordinate) {

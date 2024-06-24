@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .antMatchers("/rooms/**").permitAll()
                 .antMatchers("/customer/**").hasRole(Role.CUSTOMER.name())
                 .antMatchers("/owner/**").hasRole(Role.OWNER.name())
+                .antMatchers("/camps/new/**").hasRole(Role.OWNER.name())
+                .antMatchers("/camps/update/**").hasRole(Role.OWNER.name())
                 .antMatchers("/csrf/**").authenticated() //csrf token for sock js & spring security
                 .antMatchers("/prototype/**").permitAll() //websocket test endpoint
                 .antMatchers("/socket/**").authenticated() //websocket endpoint

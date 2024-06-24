@@ -50,6 +50,13 @@ public class PostController {
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
+    @GetMapping("/general/list/my")
+    public ResponseEntity<List<GeneralPostSimple>> myGeneralPostList(@LoginMember SessionMember member,
+                                                                     @RequestParam Long lastPostId) {
+        List<GeneralPostSimple> posts = postService.findMyGeneralPostList(member.getId(), lastPostId).getContent();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
     @PutMapping("/general/update/{postId}")
     public ResponseEntity<GeneralPostDetail> updateGeneralPost(@LoginMember SessionMember member,
                                                                @PathVariable("postId") Long postId,
@@ -98,6 +105,13 @@ public class PostController {
     @GetMapping("/gather/list")
     public ResponseEntity<List<GatherPostSimple>> gatherPostList(@RequestParam Long lastPostId) {
         List<GatherPostSimple> posts = postService.findGatherPostList(lastPostId).getContent();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping("/gather/list/my")
+    public ResponseEntity<List<GatherPostSimple>> myGatherPostList(@LoginMember SessionMember member,
+                                                                     @RequestParam Long lastPostId) {
+        List<GatherPostSimple> posts = postService.findMyGatherPostList(member.getId(), lastPostId).getContent();
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
