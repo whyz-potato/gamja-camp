@@ -4,20 +4,19 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 import VueGeolocation from 'vue-geolocation-api'
-import DateRangePicker from 'vue2-daterange-picker'
 import 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 import 'material-icons/iconfont/material-icons.css'
 import VueCookies from 'vue-cookies'
-import VueDatepickerUi from 'vue-datepicker-ui'
 import 'vue-datepicker-ui/lib/vuedatepickerui.css'
+import CKEditor from '@ckeditor/ckeditor5-vue2'
 
 Vue.config.productionTip = false
 
 Vue.use(VueGeolocation)
-Vue.use(DateRangePicker)
+Vue.use(CKEditor)
 Vue.use(VueCookies)
 Vue.$cookies.config('1d')
-Vue.component('Datepicker', VueDatepickerUi)
+
 
 window.Kakao.init('')
 

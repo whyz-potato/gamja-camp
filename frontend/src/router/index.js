@@ -4,6 +4,7 @@ import Home from '@/views/Home'
 import Test from '@/views/Test'
 import Login from '@/views/member/Login'
 import Join from '@/views/member/Join'
+import Mypage from '@/views/member/Mypage'
 import Community from '@/views/community/Community'
 import GeneralRegister from '@/views/community/GeneralRegister'
 import GeneralDetail from '@/views/community/GeneralDetail'
@@ -12,8 +13,8 @@ import GatherRegister from '@/views/community/GatherRegister'
 import GatherDetail from '@/views/community/GatherDetail'
 import GatherUpdate from '@/views/community/GatherUpdate'
 import RoomDetail from '@/views/RoomDetail'
-import TestLoginKakao from '@/views/TestLoginKakao'
-import TestLoginGoogle from '@/views/TestLoginGoogle'
+import CampAdmin from '@/views/owner/CampAdmin'
+import CampRegister from '@/views/owner/CampRegister'
 
 Vue.use(VueRouter)
 
@@ -29,22 +30,6 @@ const routes = [
     component: Test
   },
   {
-    path: '/login/oauth2/code/kakao',
-    name: 'TestLoginKakao',
-    component: TestLoginKakao,
-    props: {
-      default: true
-    }
-  },
-  {
-    path: '/login/oauth2/code/google',
-    name: 'TestLoginGoogle',
-    component: TestLoginGoogle,
-    props: {
-      default: true
-    }
-  },
-  {
     path: '/login',
     name: 'Login',
     component: Login
@@ -53,6 +38,11 @@ const routes = [
     path: '/join',
     name: 'Join',
     component: Join
+  },
+  {
+    path: '/mypage',
+    name: 'Mypage',
+    component: Mypage
   },
   {
     path: '/community',
@@ -93,6 +83,16 @@ const routes = [
     path: '/roomDetail',
     name: 'RoomDetail',
     component: RoomDetail
+  },
+  {
+    path: '/campAdmin',
+    name: 'CampAdmin',
+    component: CampAdmin
+  },
+  {
+    path: '/campRegister',
+    name: 'CampRegister',
+    component: CampRegister
   },
 ]
 

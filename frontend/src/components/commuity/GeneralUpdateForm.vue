@@ -3,7 +3,7 @@
     <v-card flat>
       <v-card class="d-flex" flat>
         <v-card-title>게시글 수정</v-card-title>
-        <v-btn @click="postRegister">등록</v-btn>
+        <!-- <v-btn @click="postRegister">등록</v-btn> -->
       </v-card>
       
       <v-divider></v-divider>
@@ -17,6 +17,11 @@
         </v-card>
         <v-textarea v-model="content" solo height="500"></v-textarea>
       </v-card>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="postRegister" rounded text large>저장하기</v-btn>
+      </v-card-actions>
     </v-card>
     
   </div>

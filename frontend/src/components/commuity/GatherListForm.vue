@@ -4,10 +4,13 @@
       <div class="search">
         <v-text-field v-model="searchWord" placeholder="검색" filled rounded 
           color="black" full-width @keyup.enter="search"></v-text-field>
-        <v-btn @click="search">검색</v-btn>
+        <v-btn class="mt-2 ml-3" @click="search" icon>
+          <v-icon>mdi-magnify</v-icon>
+        </v-btn>
       </div>
-      <div>
-        <v-btn @click="post">등록</v-btn>
+      <div class="text-right">
+        <v-btn @click="post" text rounded>글쓰기</v-btn>
+        <!-- <v-btn @click="test">예약</v-btn> -->
       </div>
       <div class="ma-10">
         <v-list v-for="list in postList" :key="list.index">

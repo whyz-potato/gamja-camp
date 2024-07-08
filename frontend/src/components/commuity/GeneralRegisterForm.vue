@@ -1,9 +1,11 @@
 <template>
   <div>
     <v-card flat>
-      <v-card class="d-flex" flat>
-        <v-card-title>게시글 등록</v-card-title>
-        <v-btn @click="postRegister">등록</v-btn>
+      <v-card class="border d-flex" flat>
+        <v-card-title class="border flex-fill">게시글 등록</v-card-title>
+        <!-- <div class="border">
+          <v-btn class="mt-4" @click="postRegister" rounded text color="grey">등록</v-btn>
+        </div> -->
       </v-card>
       
       <v-divider></v-divider>
@@ -16,7 +18,13 @@
           <v-img v-for="url in urls" :key="url.index" class="ml-10" :src="url" width="50%"/>
         </div>
         <v-textarea v-model="content" solo rows="40" auto-grow></v-textarea>
+        <!-- <ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor> -->
       </v-card>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="postRegister" rounded text large>저장하기</v-btn>
+      </v-card-actions>
     </v-card>
     
   </div>
@@ -25,6 +33,7 @@
 
 <script>
 import api from '@/api' 
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data () {
@@ -33,7 +42,14 @@ export default {
       title: '',
       content: '',
       files: [],
-      urls: []
+      urls: [],
+      editor: ClassicEditor,
+      editorData: 'ttt',
+      editorConfig: {
+        toolbar: ['heading', '|','bold', 'italic', 'bulletedList', 'numberedList', '|', 
+          'link', 'insertTable', '|', 'imageUpload', '|', 'undo', 'redo'],
+        //language: 'Ko'
+      }
     }
   },
   mounted () {
@@ -74,9 +90,10 @@ export default {
           'Content-Type': 'multipart/form-data',
           accept: 'application/json'
         }
-      }).then(() => {
+      }).then(res => {
+        console.log(res.data)
         console.log('게시글등록완')
-        this.$router.push({ name: 'Community' })
+        this.$router.push({ name: 'GeneralDetail', query: { 'postId': res.data.id }})
       })
     }
   }

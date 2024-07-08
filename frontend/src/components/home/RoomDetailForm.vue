@@ -17,7 +17,7 @@
     </swiper>
    
 
-    <v-card-title class="mt-3">객실 예약</v-card-title>
+    <v-card-title class="mt-3">객실 정보</v-card-title>
 
     <div class="ml-3">
       <v-chip class="mr-2" outlined>
@@ -34,7 +34,7 @@
       </v-chip>
     </div>
       
-    <v-card class="card ml-3 mt-3 pa-3" width="500" flat>
+    <!-- <v-card class="card ml-3 mt-3 pa-3" width="500" flat>
       <div>요금 상세 내역</div>
       <v-divider></v-divider>
       <div class="d-flex">
@@ -57,7 +57,7 @@
       </div>
       <v-divider></v-divider>
       총금액  {{ roomDetail.room.price.totalPrice }}
-    </v-card>
+    </v-card> -->
    
     <div class="ml-3 mt-3">
       <v-chip class="mr-2" outlined>
@@ -70,11 +70,20 @@
       </v-chip>
     </div>
 
+    <v-card-title class="mt-3">객실 가격</v-card-title>
+    <div class="d-flex ml-4 mt-2" >
+      <div>
+        총금액
+      </div>
+      <div class="ml-5">
+         {{ roomDetail.room.price.totalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} 원
+      </div>
+    </div>
     
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn @click="reservation" large>예약하기</v-btn>
-      <v-btn @click="checkReservation" large>예약확인</v-btn>
+      <v-btn class="mt-3" @click="reservation" text rounded large>예약하기</v-btn>
+      <!-- <v-btn @click="checkReservation" large>예약확인</v-btn> -->
     </v-card-actions>
   </v-card>
 </template>
@@ -131,10 +140,10 @@ export default {
   methods: {
     reservation () {
       const test = {
-        "campId":2,
-        "roomId":11,
-        "checkIn":"2024-02-05",
-        "checkOut":"2024-02-06",
+        "campId":5,
+        "roomId":22,
+        "checkIn":"2024-04-15",
+        "checkOut":"2024-04-16",
         "guest":{"id":1,"name":"customer","email":"a"},
         "reservation":{"numGuest":2,"dailyPrice":[15000]}
       }

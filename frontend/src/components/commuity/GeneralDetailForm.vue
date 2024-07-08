@@ -1,9 +1,14 @@
 <template>
   <div>
     <v-card flat>
-      <v-card-title>{{ post.title }}
-        <v-btn @click="updatePost">수정</v-btn>
-        <v-btn @click="deletePost">삭제</v-btn>
+      <v-card-title class="border">
+        <div class="border flex-fill">
+          {{ post.title }}
+        </div>
+        <div class="border">
+          <v-btn @click="updatePost" small icon color="black">수정</v-btn>
+          <v-btn @click="deletePost" small icon color="black">삭제</v-btn>
+        </div>
       </v-card-title>
       <v-divider></v-divider>
       <div class="mt-5">
@@ -40,8 +45,8 @@
                 <v-textarea v-model="comment" rows="3" auto-grow solo
                   @keyup.enter="commentRegister"></v-textarea>
                 <div class="text-right mt-n4 mb-5">
-                  <v-btn @click="commentId = null, comment = null">취소</v-btn>
-                  <v-btn @click="commentRegister">등록</v-btn>
+                  <v-btn @click="commentId = null, comment = null" text rounded>취소</v-btn>
+                  <v-btn @click="commentRegister" text rounded>저장하기</v-btn>
                 </div>  
               </div>
 
@@ -69,8 +74,8 @@
                     <v-textarea v-model="comment" rows="3" auto-grow solo
                       @keyup.enter="commentRegister"></v-textarea>
                     <div class="text-right mt-n4 mb-5">
-                      <v-btn @click="commentId = null, comment = null">취소</v-btn>
-                      <v-btn @click="commentRegister">등록</v-btn>
+                      <v-btn @click="commentId = null, comment = null" text rounded>취소</v-btn>
+                      <v-btn @click="commentRegister" text rounded>저장하기</v-btn>
                     </div>  
                   </div>
 
@@ -83,7 +88,7 @@
             <v-textarea v-model="newComment" label="댓글쓰기" rows="4" 
               auto-grow solo @keyup.enter="newCommentRegister"></v-textarea>
             <div class="text-right mt-n4 mb-5">
-              <v-btn @click="newCommentRegister">등록</v-btn>
+              <v-btn @click="newCommentRegister" text rounded>저장하기</v-btn>
             </div>
             
           </div>
@@ -195,7 +200,7 @@ export default {
       })
     },
     updatePost () {
-      this.$router.push({ name: 'PostUpdate', query: { 'postId': this.postId }})
+      this.$router.push({ name: 'GeneralUpdate', query: { 'postId': this.postId }})
     },
     deletePost () {
       api.delete(`/post/general/delete/${this.postId}`).then(() => {
