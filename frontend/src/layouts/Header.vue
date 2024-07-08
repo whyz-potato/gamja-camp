@@ -9,7 +9,7 @@
         <router-link :to="{ name: 'Community' }">커뮤니티</router-link>
       </div>
       <div class="login">
-        <router-link :to="{ name: 'CampAdmin' }" v-if="isLogin" >관리자페이지</router-link>
+        <!-- <router-link :to="{ name: 'CampAdmin' }" v-if="isLogin" >관리자페이지</router-link> -->
         <router-link :to="{ name: 'Login' }" v-if="!isLogin">로그인</router-link>
         <router-link :to="{ name: 'Mypage' }" v-else>마이페이지</router-link>
         <a href="http://localhost:8080/logout" v-if="isLogin" @click="logout">로그아웃</a>
