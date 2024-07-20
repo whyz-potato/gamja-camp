@@ -105,4 +105,8 @@ public class Chat extends BaseTimeEntity {
         return this;
     }
 
+    public void setPostNull() {
+        this.post = null;
+    }
+
 }

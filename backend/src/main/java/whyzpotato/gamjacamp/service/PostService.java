@@ -16,10 +16,12 @@ import whyzpotato.gamjacamp.controller.dto.GeneralPostDto.GeneralPostDetail;
 import whyzpotato.gamjacamp.controller.dto.GeneralPostDto.GeneralPostSimple;
 import whyzpotato.gamjacamp.controller.dto.GeneralPostDto.GeneralPostUpdateRequest;
 import whyzpotato.gamjacamp.domain.Image;
+import whyzpotato.gamjacamp.domain.chat.Chat;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.post.Post;
 import whyzpotato.gamjacamp.domain.post.PostType;
 import whyzpotato.gamjacamp.controller.dto.GeneralPostDto.GeneralPostSaveRequest;
+import whyzpotato.gamjacamp.repository.ChatRepository;
 import whyzpotato.gamjacamp.repository.ImageRepository;
 import whyzpotato.gamjacamp.repository.MemberRepository;
 import whyzpotato.gamjacamp.repository.PostRepository;
@@ -35,6 +37,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
+    private final ChatRepository chatRepository;
 
     /**
      * 자유게시판 글 쓰기
@@ -210,7 +213,11 @@ public class PostService {
     public void deleteGatherPost(Long memberId, Long postId) {
         Member writer = memberRepository.findById(memberId).get();
         Post post = postRepository.findById(postId).get();
+        Optional<Chat> chat = chatRepository.findByPost_Id(post.getId());
         if(post.getWriter().equals(writer) && post.getType().equals(PostType.GATHER)) {
+            if (chat.isPresent()) {
+                chat.get().setPostNull();
+            }
             postRepository.delete(post);
             return;
         }
