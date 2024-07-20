@@ -1,17 +1,13 @@
 package whyzpotato.gamjacamp.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.web.bind.annotation.*;
-import whyzpotato.gamjacamp.config.auth.LoginMember;
-import whyzpotato.gamjacamp.config.auth.dto.SessionMember;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +16,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-//@CrossOrigin(origins = "http://localhost:7777", allowedHeaders = "*")
 public class LoginController {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
@@ -48,10 +43,4 @@ public class LoginController {
         //return oauth provider urls
         return new ArrayList<String>(List.of("/oauth2/authorization/google", "/oauth2/authorization/naver", "/oauth2/authorization/kakao"));
     }
-
-    @GetMapping("/login-member")
-    public ResponseEntity<?> loginMember(@LoginMember SessionMember member){
-        return ResponseEntity.ok(member);
-    }
-
 }

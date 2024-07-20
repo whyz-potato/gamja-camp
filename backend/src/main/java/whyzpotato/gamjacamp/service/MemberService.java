@@ -19,4 +19,8 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundException());
     }
 
+    public void toOwner(long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(NotFoundException::new);
+        member.updateRoleOwner();
+    }
 }
