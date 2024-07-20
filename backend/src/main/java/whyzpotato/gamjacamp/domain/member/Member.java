@@ -68,4 +68,7 @@ public class Member {
         this.role = role;
     }
 
+    public void updateRoleOwner() {
+        role = Role.OWNER;
+    }
 }
