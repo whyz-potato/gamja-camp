@@ -3,15 +3,12 @@ package whyzpotato.gamjacamp.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import whyzpotato.gamjacamp.controller.dto.ReservationDto;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationDetail;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationInfo;
-import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationListItem;
+import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationListItemWithReviewed;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationRequest;
 import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Reservation;
@@ -21,11 +18,11 @@ import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.exception.NotFoundException;
 import whyzpotato.gamjacamp.repository.CampRepository;
 import whyzpotato.gamjacamp.repository.ReservationRepository;
+import whyzpotato.gamjacamp.repository.ReviewRepository;
+import whyzpotato.gamjacamp.repository.querydto.ReservationIdDto;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +35,7 @@ public class ReservationService {
     private final MemberService memberService;
     private final RoomService roomService;
     private final CampRepository campRepository;
+    private final ReviewRepository reviewRepository;
 
     //RQ31 : 예약 상세 정보
     public ReservationDetail findReservation(Long reservationId, Long memberId) {
@@ -80,7 +78,7 @@ public class ReservationService {
                 .build();
 
         Long count = reservationRepository.countByRoomAndStayEndsGreaterThanAndStayStartsLessThan(room, request.getCheckIn(), request.getCheckOut());
-        if(room.getCnt() <= count){
+        if (room.getCnt() <= count) {
             throw new IllegalStateException("변경된 예약정보가 있습니다.");
         }
 
@@ -118,10 +116,15 @@ public class ReservationService {
     }
 
 
-    public Page<ReservationListItem> findCustomerReservations(Long memberId, Pageable pageable) {
+    public Page<ReservationListItemWithReviewed> findCustomerReservations(Long memberId, Pageable pageable) {
         Member member = memberService.findById(memberId);
-        return reservationRepository.findByMemberOrderByStayStartsDesc(member, pageable)
-                .map(ReservationListItem::new);
+        Page<Reservation> reservations = reservationRepository.findByMemberOrderByCreatedTimeDesc(member, pageable);
+        List<Long> reviewedId = reviewRepository.findByReservationIn(reservations.getContent())
+                .stream()
+                .map(ReservationIdDto::getReservation_Id)
+                .collect(Collectors.toList());
+
+        return reservations.map(r -> new ReservationListItemWithReviewed(r, reviewedId.contains(r.getId())));
     }
 
     public Page<ReservationInfo> findCampReservations(Long ownerId, ReservationStatus status, Pageable pageable) {
@@ -130,7 +133,7 @@ public class ReservationService {
                 .map(ReservationInfo::new);
     }
 
-    public ReservationDetail findCampReservation(Long reservationId, Long ownerId){
+    public ReservationDetail findCampReservation(Long reservationId, Long ownerId) {
 
         //값이 있는 경우에는 -> 해당 예약을 조회할 수 있는 경우에만 값을 통과
         Reservation reservation = reservationRepository.findById(reservationId)

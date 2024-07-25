@@ -3,15 +3,14 @@ package whyzpotato.gamjacamp.service;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import whyzpotato.gamjacamp.controller.dto.MemberDto;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationDetail;
+import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationListItemWithReviewed;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationRequest;
-import whyzpotato.gamjacamp.domain.Camp;
-import whyzpotato.gamjacamp.domain.Reservation;
-import whyzpotato.gamjacamp.domain.ReservationStatus;
-import whyzpotato.gamjacamp.domain.Room;
+import whyzpotato.gamjacamp.domain.*;
 import whyzpotato.gamjacamp.domain.member.Member;
 import whyzpotato.gamjacamp.domain.member.Role;
 
@@ -60,6 +59,10 @@ class ReservationServiceTest {
         for (Reservation reservation : reservations) {
             em.persist(reservation);
         }
+
+        //이용 후 리뷰 완료
+        reservations.get(0).confirm(owner);
+        em.persist(Review.builder().reservation(reservations.get(0)).content("Good").camp(camp).rate(5).writer(customer).build());
     }
 
     @AfterEach
@@ -198,6 +201,15 @@ class ReservationServiceTest {
         assertThrows(IllegalStateException.class,
                 () -> reservationService.cancel(customer.getId(), reservation.getId()));
 
+    }
+
+    @DisplayName("손님_객실 예약 목록 조회")
+    @Test
+    void getCustomerReservations() {
+        List<ReservationListItemWithReviewed> result = reservationService.findCustomerReservations(customer.getId(), PageRequest.of(0, 10)).getContent();
+
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result).extracting("reviewed").containsExactly(false, false, true);
     }
 
 

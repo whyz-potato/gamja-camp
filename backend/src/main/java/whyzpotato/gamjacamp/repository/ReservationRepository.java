@@ -12,8 +12,7 @@ import whyzpotato.gamjacamp.domain.member.Member;
 import java.time.LocalDate;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-
-    Page<Reservation> findByMemberOrderByStayStartsDesc(Member member, Pageable pageable);
+    Page<Reservation> findByMemberOrderByCreatedTimeDesc(Member member, Pageable pageable);
 
     Page<Reservation> findByCampAndStatusOrderByStayStartsDesc(Camp camp, ReservationStatus status, Pageable pageable);
 
