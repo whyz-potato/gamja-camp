@@ -106,14 +106,14 @@ public class CampService {
     @Transactional(readOnly = true)
     public CampDetail findCamp(Long campId) {
         Optional<Camp> optionalCamp = campRepository.findById(campId);
-        Camp camp = optionalCamp.orElseThrow(() -> new NoSuchElementException("등록된 캠핑장이 없습니다."));
+        Camp camp = optionalCamp.orElseThrow(() -> new NotFoundException("등록된 캠핑장이 없습니다."));
         return new CampDetail(camp);
     }
 
     @Transactional(readOnly = true)
     public CampDetail findOwnerCamp(Long ownerId) {
-        Member host = memberRepository.findById(ownerId).orElseThrow(NoSuchElementException::new);
-        Camp camp = campRepository.findByMember(host).orElseThrow(() -> new NoSuchElementException("등록된 캠핑장이 없습니다."));
+        Member host = memberRepository.findById(ownerId).orElseThrow(NotFoundException::new);
+        Camp camp = campRepository.findByMember(host).orElseThrow(() -> new NotFoundException("등록된 캠핑장이 없습니다."));
         return new CampDetail(camp);
     }
 
@@ -199,8 +199,8 @@ public class CampService {
 
     protected Camp updateOperatingHour(Camp camp, String start, String end) {
         if (start != null && end != null) {
-            LocalTime startTime = LocalTime.of(Integer.parseInt(start.substring(0, start.indexOf(":"))), Integer.parseInt(start.substring(start.indexOf(":")+1)));
-            LocalTime endTime = LocalTime.of(Integer.parseInt(end.substring(0, end.indexOf(":"))), Integer.parseInt(end.substring(end.indexOf(":")+1)));
+            LocalTime startTime = LocalTime.of(Integer.parseInt(start.substring(0, start.indexOf(":"))), Integer.parseInt(start.substring(start.indexOf(":") + 1)));
+            LocalTime endTime = LocalTime.of(Integer.parseInt(end.substring(0, end.indexOf(":"))), Integer.parseInt(end.substring(end.indexOf(":") + 1)));
             camp.updateOperatingHours(startTime, endTime);
         }
         return camp;
@@ -214,48 +214,6 @@ public class CampService {
         }
         throw new NoSuchElementException();
     }
-
-//    /**
-//     * 캠핑장 정보 수정
-//     * 이름, 연락처, 설명
-//     */
-//    public CampDto updateCamp(Long memberId, Long campId, CampUpdateRequestDto campUpdateRequestDto) {
-//        Camp camp = campRepository.findById(campId).get();
-//        Member member = memberRepository.findById(memberId).get();
-//        if (camp.getMember().equals(member)) {
-//            campRepository.save(camp.update(campUpdateRequestDto));
-//            return new CampDto(camp);
-//        }
-//        throw new NoSuchElementException();
-//    }
-
-//    /**
-//     * 캠핑장 운영시간 변경
-//     */
-//    public CampDto updateOperatingHours(Long memberId, Long campId, int startHours, int startMinutes, int endHours, int endMinutes) {
-//        Camp camp = campRepository.findById(campId).get();
-//        Member member = memberRepository.findById(memberId).get();
-//        if (camp.getMember().equals(member)) {
-//            LocalTime startTime = LocalTime.of(startHours, startMinutes);
-//            LocalTime endTime = LocalTime.of(endHours, endMinutes);
-//            campRepository.save(camp.updateOperatingHours(startTime, endTime));
-//            return new CampDto(camp);
-//        }
-//        throw new NoSuchElementException();
-//    }
-
-//    /**
-//     * 캠핑장 운영시간 삭제
-//     */
-//    public void deleteOperatingHours(Long memberId, Long campId) {
-//        Camp camp = campRepository.findById(campId).get();
-//        Member member = memberRepository.findById(memberId).get();
-//        if (camp.getMember().equals(member)) {
-//            campRepository.save(camp.updateOperatingHours(null, null));
-//            return;
-//        }
-//        throw new NoSuchElementException();
-//    }
 
     /**
      * @param campId

@@ -134,7 +134,7 @@ public class ReservationService {
 
         //값이 있는 경우에는 -> 해당 예약을 조회할 수 있는 경우에만 값을 통과
         Reservation reservation = reservationRepository.findById(reservationId)
-                .filter(r -> r.getCamp().getMember().getId() == ownerId)
+                .filter(r -> r.getCamp().getMember().getId().equals(ownerId))
                 .orElseThrow(NotFoundException::new);
 
         return new ReservationDetail(reservation);

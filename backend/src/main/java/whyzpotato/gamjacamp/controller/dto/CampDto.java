@@ -48,7 +48,7 @@ public class CampDto {
         public CampInfo(Camp camp) {
             this.id = camp.getId();
             this.name = camp.getName();
-            if(!camp.getImages().isEmpty()) {
+            if (camp.getImages() != null && !camp.getImages().isEmpty()) {
                 this.images = camp.getImages().stream()
                         .map(Image::getPath)
                         .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class CampDto {
             this.id = camp.getId();
             this.name = camp.getName();
             this.rate = camp.getRate();
-            if(!camp.getImages().isEmpty()) {
+            if (camp.getImages() != null && !camp.getImages().isEmpty()) {
                 this.images = camp.getImages().stream()
                         .map(Image::getPath)
                         .collect(Collectors.toList());
@@ -154,7 +154,7 @@ public class CampDto {
 
     @Getter
     @NoArgsConstructor
-    public static class  CampSaveRequest {
+    public static class CampSaveRequest {
         @NotBlank
         private String name;
         @NotBlank

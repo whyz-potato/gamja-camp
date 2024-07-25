@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import whyzpotato.gamjacamp.controller.dto.MemberDto;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto;
+import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationDetail;
 import whyzpotato.gamjacamp.controller.dto.ReservationDto.ReservationRequest;
 import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Reservation;
@@ -206,7 +207,7 @@ class ReservationServiceTest {
 
         Reservation reservation = reservations.get(0);
 
-        ReservationDto.ReservationDetail detail = reservationService.findCampReservation(reservation.getId(), owner.getId());
+        ReservationDetail detail = reservationService.findCampReservation(reservation.getId(), owner.getId());
 
         assertThat(detail.getReservation().getStatus()).isEqualTo(reservation.getStatus());
         assertThat(detail.getCamp().getName()).isEqualTo(camp.getName());
