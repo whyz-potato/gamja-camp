@@ -61,8 +61,8 @@ public class ReservationController {
     public ResponseEntity<?> reservationList(@LoginMember SessionMember sessionMember,
                                              @PageableDefault(size = 10) Pageable pageable) {
 
-        Page<ReservationListItem> customerReservations = reservationService.findCustomerReservations(sessionMember.getId(), pageable);
-        return ResponseEntity.ok(new PageResult(customerReservations));
+        Page<ReservationListItemWithReviewed> customerReservations = reservationService.findCustomerReservations(sessionMember.getId(), pageable);
+        return ResponseEntity.ok(new PageResult<>(customerReservations));
 
     }
 

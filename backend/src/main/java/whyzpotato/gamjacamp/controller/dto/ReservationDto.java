@@ -41,7 +41,6 @@ public class ReservationDto {
             this.stayEnds = reservation.getStayEnds();
             this.price = reservation.getPrice();
         }
-
     }
 
     @Getter
@@ -55,6 +54,22 @@ public class ReservationDto {
             this.camp = new CampSimple(reservation.getCamp());
             this.room = new RoomSimple(reservation.getRoom());
             this.reservation = new ReservationInfo(reservation);
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ReservationListItemWithReviewed {
+        private CampSimple camp;
+        private RoomSimple room;
+        private ReservationInfo reservation;
+        private boolean reviewed;
+
+        public ReservationListItemWithReviewed(Reservation reservation, boolean reviewed) {
+            this.camp = new CampSimple(reservation.getCamp());
+            this.room = new RoomSimple(reservation.getRoom());
+            this.reservation = new ReservationInfo(reservation);
+            this.reviewed = reviewed;
         }
     }
 
@@ -112,7 +127,6 @@ public class ReservationDto {
 
         @NotNull
         private ReservationSimple reservation;
-
     }
 
     @Getter
@@ -136,6 +150,4 @@ public class ReservationDto {
         private Long reservation;
         private ReservationStatus status;
     }
-
-
 }

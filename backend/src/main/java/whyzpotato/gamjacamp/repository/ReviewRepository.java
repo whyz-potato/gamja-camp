@@ -9,7 +9,9 @@ import whyzpotato.gamjacamp.domain.Camp;
 import whyzpotato.gamjacamp.domain.Reservation;
 import whyzpotato.gamjacamp.domain.Review;
 import whyzpotato.gamjacamp.domain.member.Member;
+import whyzpotato.gamjacamp.repository.querydto.ReservationIdDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -18,8 +20,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByIdLessThan(Long id, Pageable pageable);
 
+    List<ReservationIdDto> findByReservationIn(List<Reservation> reservations);
+
     @Query("SELECT r FROM Review r WHERE (r.writer = :writer AND r.id < :id)")
-    Page<Review> findByWriterAndIdLessThan(@Param("writer") Member writer, @Param("id")Long id, Pageable pageable);
+    Page<Review> findByWriterAndIdLessThan(@Param("writer") Member writer, @Param("id") Long id, Pageable pageable);
 
     @Query("SELECT AVG(r.rate) FROM Review r WHERE r.camp = :camp")
     Double getRateAverage(@Param("camp") Camp camp);
