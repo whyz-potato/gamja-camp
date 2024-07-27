@@ -72,6 +72,5 @@ class MemberControllerTest {
                         .session(session)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection());
-
     }
 }

@@ -15,12 +15,13 @@ public class SessionMember {
     private String name;
     private String account;
     private String picture;
+    private String role;
 
     public SessionMember(Member member) {
         this.id = member.getId();
         this.name = member.getUsername();
         this.account = member.getAccount();
         this.picture = member.getPicture();
+        this.role = member.getRole().name();
     }
-
 }
