@@ -68,22 +68,22 @@ public class ReviewService {
     /**
      * 리뷰 목록 조회
      */
-    public Page<ReviewSimple> findReviewList(Long lastReviewId) {
+    public Page<ReviewDetail> findReviewList(Long lastReviewId) {
         Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
         Page<Review> reviews = reviewRepository.findByIdLessThan(lastReviewId, sortedByIdDesc);
-        Page<ReviewSimple> reviewSimpleList = new ReviewSimple().toList(reviews);
-        return  reviewSimpleList;
+        Page<ReviewDetail> reviewDetailList = new ReviewDetail().toList(reviews);
+        return  reviewDetailList;
     }
 
     /**
      * 개인 리뷰 목록 조회
      */
-    public Page<ReviewSimple> findMyReviewList(Long memberId, Long lastReviewId) {
+    public Page<ReviewDetail> findMyReviewList(Long memberId, Long lastReviewId) {
         Member writer = memberRepository.findById(memberId).get();
         Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
         Page<Review> reviews = reviewRepository.findByWriterAndIdLessThan(writer, lastReviewId, sortedByIdDesc);
-        Page<ReviewSimple> myReviewSimpleList = new ReviewSimple().toList(reviews);
-        return myReviewSimpleList;
+        Page<ReviewDetail> myReviewDetailList = new ReviewDetail().toList(reviews);
+        return myReviewDetailList;
     }
 
     /**

@@ -46,15 +46,15 @@ public class ReviewController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<ReviewSimple>> ReviewList(@RequestParam Long lastReviewId) {
-        List<ReviewSimple> reviews = reviewService.findReviewList(lastReviewId).getContent();
+    public ResponseEntity<List<ReviewDetail>> ReviewList(@RequestParam Long lastReviewId) {
+        List<ReviewDetail> reviews = reviewService.findReviewList(lastReviewId).getContent();
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
     @GetMapping("/list/my")
-    public ResponseEntity<List<ReviewSimple>> MyReviewList(@LoginMember SessionMember member,
+    public ResponseEntity<List<ReviewDetail>> MyReviewList(@LoginMember SessionMember member,
                                                            @RequestParam Long lastReviewId) {
-        List<ReviewSimple> reviews = reviewService.findMyReviewList(member.getId(), lastReviewId).getContent();
+        List<ReviewDetail> reviews = reviewService.findMyReviewList(member.getId(), lastReviewId).getContent();
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 

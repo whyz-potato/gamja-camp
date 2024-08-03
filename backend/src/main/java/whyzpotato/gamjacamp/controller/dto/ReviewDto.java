@@ -102,6 +102,22 @@ public class ReviewDto {
                         .collect(Collectors.toList());
             }
         }
+
+        public Page<ReviewDetail> toList(Page<Review> reviews) {
+            Page<ReviewDetail> reviewDetailList = reviews.map(
+                    m -> ReviewDetail.builder()
+                            .id(m.getId())
+                            .writer(m.getWriter())
+                            .date(m.getCreatedTime().toLocalDate())
+                            .time(m.getCreatedTime().toLocalTime())
+                            .camp(m.getCamp())
+                            .reservation(m.getReservation())
+                            .rate(m.getRate())
+                            .content(m.getContent())
+                            .images(m.getImages())
+                            .build());
+            return reviewDetailList;
+        }
     }
 
     @Getter
